@@ -76,6 +76,15 @@ bool MessageState::parse(uint64_t sec, uint16_t ts_, uint8_t * dat) {
       if (!update_counter_generic(tmp, sig.b2)) {
         return false;
       }
+    } else if (sig.type == SignalType::OCELOT_CHECKSUM) {
+      if (ocelot_checksum(dat_be, size) != tmp) {
+        INFO("0x%X OCELOT CHECKSUM FAIL\n", address);
+        return false;
+      }
+    } else if (sig.type == SignalType::OCELOT_COUNTER) {
+      if (!update_counter_generic(tmp, sig.b2)) {
+        return false;
+      }
     }
 
     vals[i] = tmp * sig.factor + sig.offset;
@@ -135,8 +144,7 @@ CANParser::CANParser(int abus, const std::string& dbc_name,
     }
     if (!msg) {
       fprintf(stderr, "CANParser: could not find message 0x%X in DBC %s\n", op.address, dbc_name.c_str());
-      continue;
-      //assert(false);
+      assert(false);
     }
 
     state.size = msg->size;
