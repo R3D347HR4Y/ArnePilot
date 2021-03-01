@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 from cereal import car
 from opendbc.can.parser import CANParser
-from selfdrive.car.other.values import DBC
+from selfdrive.car.ocelot.values import DBC
 from selfdrive.config import Conversions as CV
 from selfdrive.car.interfaces import RadarInterfaceBase
 
-RADAR_MSGS = list(range(0x500, 0x540))
+RADAR_MSGS = list(range(0x120, 0x160))
 
 def _create_radar_can_parser(car_fingerprint):
   msg_n = len(RADAR_MSGS)
-  signals = list(zip(['X_Rel'] * msg_n + ['Angle'] * msg_n + ['V_Rel'] * msg_n,
-                     RADAR_MSGS * 3,
-                     [0] * msg_n + [0] * msg_n + [0] * msg_n))
+  signals = list(zip(['CAN_DET_RANGE'] * msg_n + ['CAN_DET_AZIMUTH'] * msg_n + ['CAN_DET_RANGE_RATE'] * msg_n + ['CAN_DET_VALID_LEVEL'] * msg_n,
+                     RADAR_MSGS * 4,
+                     [0] * msg_n + [0] * msg_n + [0] * msg_n + [0] * msg_n))
   checks = list(zip(RADAR_MSGS, [20]*msg_n))
 
   return CANParser(DBC[car_fingerprint]['radar'], signals, checks, 2)
@@ -23,7 +23,7 @@ class RadarInterface(RadarInterfaceBase):
     self.track_id = 0
 
     self.rcp = _create_radar_can_parser(CP.carFingerprint)
-    self.trigger_msg = 0x53f
+    self.trigger_msg = 0x15F
     self.updated_messages = set()
 
   def update(self, can_strings):
@@ -42,24 +42,15 @@ class RadarInterface(RadarInterfaceBase):
     for ii in sorted(self.updated_messages):
       cpt = self.rcp.vl[ii]
 
-      if cpt['X_Rel'] > 0.00001:
-        self.validCnt[ii] = 0    # reset counter
-
-      if cpt['X_Rel'] > 0.00001:
-        self.validCnt[ii] += 1
-      else:
-        self.validCnt[ii] = max(self.validCnt[ii] - 1, 0)
-      #print ii, self.validCnt[ii], cpt['VALID'], cpt['X_Rel'], cpt['Angle']
-
-      # radar point only valid if there have been enough valid measurements
-      if self.validCnt[ii] > 0:
+      # radar point only valid if valid signal asserted
+      if cpt['CAN_DET_VALID_LEVEL'] > 0:
         if ii not in self.pts:
           self.pts[ii] = car.RadarData.RadarPoint.new_message()
           self.pts[ii].trackId = self.track_id
           self.track_id += 1
-        self.pts[ii].dRel = cpt['X_Rel']  # from front of car
-        self.pts[ii].yRel = cpt['X_Rel'] * cpt['Angle'] * CV.DEG_TO_RAD  # in car frame's y axis, left is positive
-        self.pts[ii].vRel = cpt['V_Rel']
+        self.pts[ii].dRel = cpt['CAN_DET_RANGE']  # from front of car
+        self.pts[ii].yRel = cpt['CAN_DET_RANGE'] * cpt['CAN_DET_AZIMUTH']   # in car frame's y axis, left is positive
+        self.pts[ii].vRel = cpt['CAN_DET_RANGE_RATE']
         self.pts[ii].aRel = float('nan')
         self.pts[ii].yvRel = float('nan')
         self.pts[ii].measured = True
