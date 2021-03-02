@@ -26,8 +26,10 @@ class CarState(CarStateBase):
         ret.leftBlinker = cp_body.vl["BODYCONTROL"]['LEFT_SIGNAL']
         ret.rightBlinker = cp_body.vl["BODYCONTROL"]['RIGHT_SIGNAL']
         ret.espDisabled = cp_body.vl["ABS"]['ESP_STATUS']
-        ret.wheelSpeeds.fl = cp_body.vl["WHEELSPEEDS"]['WHEELSPEED_FL'] * CV.MPH_TO_MS
-        ret.wheelSpeeds.fr = cp_body.vl["WHEELSPEEDS"]['WHEELSPEED_FR'] * CV.MPH_TO_MS
+        ret.wheelSpeeds.fl = cp_body.vl["SMARTROADSTERWHEELSPEEDS"]['WHEELSPEED_FL'] * CV.MPH_TO_MS
+        ret.wheelSpeeds.fr = cp_body.vl["SMARTROADSTERWHEELSPEEDS"]['WHEELSPEED_FR'] * CV.MPH_TO_MS
+        ret.wheelSpeeds.rl = cp_body.vl["SMARTROADSTERWHEELSPEEDS"]['WHEELSPEED_RL'] * CV.MPH_TO_MS
+        ret.wheelSpeeds.rr = cp_body.vl["SMARTROADSTERWHEELSPEEDS"]['WHEELSPEED_RR'] * CV.MPH_TO_MS
         ret.brakeLights = cp_body.vl["ABS"]['BRAKEPEDAL']
         can_gear = int(cp.vl["GEARBOX"]['GEARPOSITION'])
         ret.gearShifter = self.parse_gear_shifter(self.shifter_values.get(can_gear, None))
@@ -40,7 +42,7 @@ class CarState(CarStateBase):
       ret.gasPressed = ret.gas > 15
     
     #calculate speed from wheel speeds
-    ret.vEgoRaw = mean([ret.wheelSpeeds.fl, ret.wheelSpeeds.fr])
+    ret.vEgoRaw = mean([ret.wheelSpeeds.fl, ret.wheelSpeeds.fr, ret.wheelSpeeds.rl, ret.wheelSpeeds.rr])
     ret.vEgo, ret.aEgo = self.update_speed_kf(ret.vEgoRaw)
     ret.standstill = ret.vEgoRaw < 0.001
 
@@ -70,7 +72,7 @@ class CarState(CarStateBase):
         
     self.setSpeed = ret.cruiseState.speed
     #if enabled from off (rising edge) set the speed to the current speed rounded to 5mph
-    if self.enabled and !self.oldEnabled:
+    if self.enabled and not(self.oldEnabled):
         ret.cruiseState.speed = (myround((ret.vEgo * CV.MS_TO_MPH), 5)) * CV.MPH_TO_MS
     
     #increase or decrease speed in 5mph increments
