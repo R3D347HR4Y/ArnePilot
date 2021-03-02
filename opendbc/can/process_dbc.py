@@ -66,7 +66,7 @@ def process(in_fn, out_fn):
     checksum_size = 8
     counter_size = 4
     checksum_start_bit = 0
-    counter_start_bit = 4
+    counter_start_bit = 0
     little_endian = True
   else:
     checksum_type = None
