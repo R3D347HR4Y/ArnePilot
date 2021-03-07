@@ -18,9 +18,9 @@ class CarState(CarStateBase):
 
   def update(self, cp, cp_body):
     ret = car.CarState.new_message()
-    
+
     #Car specific information
-    if CP.carFingerprint == CAR.SMART_ROADSTER_COUPE:
+    if self.CP.carFingerprint == CAR.SMART_ROADSTER_COUPE:
         ret.doorOpen = any([cp_body.vl["BODYCONTROL"]['RIGHT_DOOR'], cp.vl["BODYCONTROL"]['LEFT_DOOR']]) != 0
         ret.seatbeltUnlatched = 0
         ret.leftBlinker = cp_body.vl["BODYCONTROL"]['LEFT_SIGNAL']
@@ -36,19 +36,19 @@ class CarState(CarStateBase):
 
     #Ibooster data
     ret.brakePressed = cp.vl["BRAKE_STATUS"]['IBOOSTER_BRAKE_APPLIED']
-    
+
     if CP.enableGasInterceptor:
-      ret.gas = (cp.vl["GAS_SENSOR"]['INTERCEPTOR_GAS'] + cp.vl["GAS_SENSOR"]['INTERCEPTOR_GAS2']) / 2.
+      ret.gas = (cp.vl["GAS_SENSOR"]['PED_GAS'] + cp.vl["GAS_SENSOR"]['PED_GAS2']) / 2.
       ret.gasPressed = ret.gas > 15
-    
+
     #calculate speed from wheel speeds
     ret.vEgoRaw = mean([ret.wheelSpeeds.fl, ret.wheelSpeeds.fr, ret.wheelSpeeds.rl, ret.wheelSpeeds.rr])
     ret.vEgo, ret.aEgo = self.update_speed_kf(ret.vEgoRaw)
     ret.standstill = ret.vEgoRaw < 0.001
 
     #Toyota SAS
-    ret.steeringAngle = cp.vl["TOYOTA_STEERING_ANGLE_SENSOR1"]['STEER_ANGLE'] + cp.vl["TOYOTA_STEERING_ANGLE_SENSOR1"]['STEER_FRACTION']
-    ret.steeringRate = cp.vl["TOYOTA_STEERING_ANGLE_SENSOR1"]['STEER_RATE']
+    ret.steeringAngle = cp.vl["TOYOTA_STEERING_ANGLE_SENSOR1"]['TOYOTA_STEER_ANGLE'] + cp.vl["TOYOTA_STEERING_ANGLE_SENSOR1"]['TOYOTA_STEER_FRACTION']
+    ret.steeringRate = cp.vl["TOYOTA_STEERING_ANGLE_SENSOR1"]['TOYOTA_STEER_RATE']
 
 
     #Steering information from smart standin ECU
@@ -60,25 +60,25 @@ class CarState(CarStateBase):
     ret.cruiseState.available = 1
     ret.cruiseState.standstill = False
     ret.cruiseState.nonAdaptive = False
-    
+
     #Logic for OP to manage whether it's enabled or not as controls board only sends button inputs
     self.oldEnabled = self.enabled
-    
+
     if cp.vl["HIM_CTRLS"]['SET_BTN']:
         self.enabled = 1
-        
+
     if cp.vl["HIM_CTRLS"]['CANCEL_BTN']:
         self.enabled = 0
-        
+
     self.setSpeed = ret.cruiseState.speed
     #if enabled from off (rising edge) set the speed to the current speed rounded to 5mph
     if self.enabled and not(self.oldEnabled):
-        ret.cruiseState.speed = (myround((ret.vEgo * CV.MS_TO_MPH), 5)) * CV.MPH_TO_MS
-    
+        ret.cruiseState.speed = (self.myround((ret.vEgo * CV.MS_TO_MPH), 5)) * CV.MPH_TO_MS
+
     #increase or decrease speed in 5mph increments
     if cp.vl["HIM_CTRLS"]['SPEEDUP_BTN']:
         ret.cruiseState.speed = self.setSpeed + 5*CV.MPH_TO_MS
-    
+
     if cp.vl["HIM_CTRLS"]['SPEEDDN_BTN']:
         ret.cruiseState.speed = self.setSpeed - 5*CV.MPH_TO_MS
 
@@ -88,19 +88,18 @@ class CarState(CarStateBase):
 
 
     return ret
-    
-  def myround(x, base=5):
-    return base * round(x/base)
+
+
 
   @staticmethod
   def get_can_parser(CP):
 
     signals = [
       # sig_name, sig_address, default
-      ("STEER_ANGLE", "TOYOTA_STEERING_ANGLE_SENSOR1", 0),
-      ("IBOOSTER_BRAKE_APPLIED", "BRAKE_STATUS", 0)
-      ("STEER_FRACTION", "TOYOTA_STEERING_ANGLE_SENSOR1", 0),
-      ("STEER_RATE", "TOYOTA_STEERING_ANGLE_SENSOR1", 0),
+      ("TOYOTA_STEER_ANGLE", "TOYOTA_STEERING_ANGLE_SENSOR1", 0),
+      ("IBOOSTER_BRAKE_APPLIED", "BRAKE_STATUS", 0),
+      ("TOYOTA_STEER_FRACTION", "TOYOTA_STEERING_ANGLE_SENSOR1", 0),
+      ("TOYOTA_STEER_RATE", "TOYOTA_STEERING_ANGLE_SENSOR1", 0),
       ("SET_BTN", "HIM_CTRLS", 0),
       ("CANCEL_BTN", "HIM_CTRLS", 0),
       ("SPEEDUP_BTN", "HIM_CTRLS", 0),
@@ -134,16 +133,18 @@ class CarState(CarStateBase):
     # use steering message to check if panda is connected to frc
     checks = [
     ]
-    
+
     if CP.carFingerprint == CAR.SMART_ROADSTER_COUPE:
         signals.append(("RIGHT_DOOR", "BODYCONTROL",0))
         signals.append(("LEFT_DOOR", "BODYCONTROL",0))
         signals.append(("LEFT_SIGNAL", "BODYCONTROL",0))
         signals.append(("RIGHT_SIGNAL", "BODYCONTROL",0))
         signals.append(("ESP_STATUS", "ABS",0))
-        signals.append(("WHEELSPEED_FL", "WHEELSPEEDS",0))
-        signals.append(("WHEELSPEED_FR", "WHEELSPEEDS",0))
+        signals.append(("WHEELSPEED_FL", "SMARTROADSTERWHEELSPEEDS",0))
+        signals.append(("WHEELSPEED_FR", "SMARTROADSTERWHEELSPEEDS",0))
+        signals.append(("WHEELSPEED_RL", "SMARTROADSTERWHEELSPEEDS",0))
+        signals.append(("WHEELSPEED_RR", "SMARTROADSTERWHEELSPEEDS",0))
         signals.append(("BRAKEPEDAL", "ABS",0))
         signals.append(("GEARPOSITION","GEARBOX", 0))
-    
+
     return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 1)
