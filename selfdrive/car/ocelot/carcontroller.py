@@ -41,11 +41,7 @@ class CarController():
     self.last_fault_frame = -200
     self.steer_rate_limited = False
 
-    self.fake_ecus = set()
-    if CP.enableCamera:
-      self.fake_ecus.add(Ecu.fwdCamera)
-    if CP.enableDsu:
-      self.fake_ecus.add(Ecu.dsu)
+    self.last_brake = 0.
 
     self.packer = CANPacker(dbc_name)
 
@@ -109,23 +105,6 @@ class CarController():
     # on consecutive messages
     if Ecu.fwdCamera in self.fake_ecus:
       can_sends.append(create_steer_command(self.packer, apply_steer, apply_steer_req, frame))
-
-      # LTA mode. Set ret.steerControlType = car.CarParams.SteerControlType.angle and whitelist 0x191 in the panda
-      # if frame % 2 == 0:
-      #   can_sends.append(create_steer_command(self.packer, 0, 0, frame // 2))
-      #   can_sends.append(create_lta_steer_command(self.packer, actuators.steerAngle, apply_steer_req, frame // 2))
-
-    # we can spam can to cancel the system even if we are using lat only control
-    if (frame % 3 == 0 and CS.CP.openpilotLongitudinalControl) or (pcm_cancel_cmd and Ecu.fwdCamera in self.fake_ecus):
-      lead = lead or CS.out.vEgo < 12.    # at low speed we always assume the lead is present do ACC can be engaged
-
-      # Lexus IS uses a different cancellation message
-      if pcm_cancel_cmd and CS.CP.carFingerprint == CAR.LEXUS_IS:
-        can_sends.append(create_acc_cancel_command(self.packer))
-      elif CS.CP.openpilotLongitudinalControl:
-        can_sends.append(create_accel_command(self.packer, apply_accel, pcm_cancel_cmd, self.standstill_req, lead))
-      else:
-        can_sends.append(create_accel_command(self.packer, 0, pcm_cancel_cmd, False, lead))
 
     if (frame % 2 == 0) and (CS.CP.enableGasInterceptor):
       # send exactly zero if apply_gas is zero. Interceptor will send the max between read value and apply_gas.
