@@ -1,10 +1,8 @@
 from cereal import car
 from common.numpy_fast import clip
-from selfdrive.car import apply_toyota_steer_torque_limits, create_gas_command, make_can_msg
-from selfdrive.car.ocelot.ocelotcan import create_steer_command, create_ui_command, \
-                                           create_accel_command, create_acc_cancel_command, \
-                                           create_fcw_command
-from selfdrive.car.ocelot.values import Ecu, CAR, STATIC_MSGS, SteerLimitParams
+from selfdrive.car import apply_toyota_steer_torque_limits, make_can_msg
+from selfdrive.car.ocelot.ocelotcan import create_steer_command, create_gas_command, create_ibst_cmd
+from selfdrive.car.ocelot.values import CAR, SteerLimitParams
 from opendbc.can.packer import CANPacker
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
@@ -69,27 +67,21 @@ class CarController():
     apply_steer = apply_toyota_steer_torque_limits(new_steer, self.last_steer, CS.out.steeringTorqueEps, SteerLimitParams)
     self.steer_rate_limited = new_steer != apply_steer
 
-    # only cut torque when steer state is a known fault
-    if CS.steer_state in [9, 25]:
-      self.last_fault_frame = frame
+    # # only cut torque when steer state is a known fault
+    # if CS.steer_state in [9, 25]:
+    #   self.last_fault_frame = frame
 
     # Cut steering for 2s after fault
-    if not enabled or (frame - self.last_fault_frame < 200):
+    if not enabled: #or (frame - self.last_fault_frame < 200):
       apply_steer = 0
       apply_steer_req = 0
     else:
       apply_steer_req = 1
 
-    if not enabled and CS.pcm_acc_status:
-      # send pcm acc cancel cmd if drive is disabled but pcm is still on, or if the system can't be activated
-      pcm_cancel_cmd = 1
 
     # on entering standstill, send standstill request
     if CS.out.standstill and not self.last_standstill:
       self.standstill_req = True
-    if CS.pcm_acc_status != 8:
-      # pcm entered standstill or it's disabled
-      self.standstill_req = False
 
     self.last_steer = apply_steer
     self.last_accel = apply_accel
@@ -103,13 +95,14 @@ class CarController():
     # toyota can trace shows this message at 42Hz, with counter adding alternatively 1 and 2;
     # sending it at 100Hz seem to allow a higher rate limit, as the rate limit seems imposed
     # on consecutive messages
-    if Ecu.fwdCamera in self.fake_ecus:
-      can_sends.append(create_steer_command(self.packer, apply_steer, apply_steer_req, frame))
+    # can_sends.append(create_steer_command(self.packer, apply_steer, apply_steer_req, frame))
 
-    if (frame % 2 == 0) and (CS.CP.enableGasInterceptor):
+    if (frame % 2 == 0):
       # send exactly zero if apply_gas is zero. Interceptor will send the max between read value and apply_gas.
       # This prevents unexpected pedal range rescaling
       can_sends.append(create_gas_command(self.packer, apply_gas, frame//2))
+    
+    can_sends.append(create_ibst_cmd(self.packer, enabled, actuators.brake, frame//2))
 
     # ui mesg is at 100Hz but we send asap if:
     # - there is something to display
@@ -126,16 +119,10 @@ class CarController():
       # forcing the pcm to disengage causes a bad fault sound so play a good sound instead
       send_ui = True
 
-    if (frame % 100 == 0 or send_ui) and Ecu.fwdCamera in self.fake_ecus:
-      can_sends.append(create_ui_command(self.packer, steer_alert, pcm_cancel_cmd, left_line, right_line, left_lane_depart, right_lane_depart))
+    # #*** static msgs ***
 
-    if frame % 100 == 0 and Ecu.dsu in self.fake_ecus:
-      can_sends.append(create_fcw_command(self.packer, fcw_alert))
-
-    #*** static msgs ***
-
-    for (addr, ecu, cars, bus, fr_step, vl) in STATIC_MSGS:
-      if frame % fr_step == 0 and ecu in self.fake_ecus and CS.CP.carFingerprint in cars:
-        can_sends.append(make_can_msg(addr, vl, bus))
+    # for (addr, ecu, cars, bus, fr_step, vl) in STATIC_MSGS:
+    #   if frame % fr_step == 0 and ecu in self.fake_ecus and CS.CP.carFingerprint in cars:
+    #     can_sends.append(make_can_msg(addr, vl, bus))
 
     return can_sends

@@ -184,6 +184,8 @@ def fingerprint(logcan, sendcan, has_relay):
     car_fingerprint = fixed_fingerprint
     source = car.CarParams.FingerprintSource.fixed
 
+  car_fingerprint = "SMART ROADSTER COUPE 2003-2006"
+
   cloudlog.warning("fingerprinted %s", car_fingerprint)
   put_nonblocking('dp_car_detected', car_fingerprint)
   return car_fingerprint, finger, vin, car_fw, source

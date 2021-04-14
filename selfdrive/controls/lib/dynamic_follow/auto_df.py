@@ -1,14 +1,19 @@
 """
   Generated using Konverter: https://github.com/ShaneSmiskol/Konverter
 """
-
+from pathlib import Path
 import numpy as np
 from common.travis_checker import travis
 
-if travis:
-  wb = np.load('/tmp/openpilot/selfdrive/controls/lib/dynamic_follow/auto_df_weights.npz', allow_pickle=True)
-else:
-  wb = np.load('/data/openpilot/selfdrive/controls/lib/dynamic_follow/auto_df_weights.npz', allow_pickle=True)
+path = Path(__file__).parent / 'auto_df_weights.npz'
+
+wb = np.load(path, allow_pickle=True)
+
+# if travis:
+#   wb = np.load('/tmp/openpilot/selfdrive/controls/lib/dynamic_follow/auto_df_weights.npz', allow_pickle=True)
+# else:
+#   wb = np.load('/data/openpilot/selfdrive/controls/lib/dynamic_follow/auto_df_weights.npz', allow_pickle=True)
+
 w, b = wb['wb']
 
 def softmax(x):

@@ -37,7 +37,7 @@ def steer_thread():
     # send
     joystick = messaging.recv_one(joystick_sock)
     can_strs = messaging.drain_sock_raw(logcan, wait_for_one=True)
-    CS = CI.update(CC, can_strs)
+    CS = CI.update(CC, can_strs, None)
 
     # Usually axis run in pairs, up/down for one, and left/right for
     # the other.

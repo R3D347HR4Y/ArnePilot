@@ -99,34 +99,26 @@ class CarInterfaceBase():
       events.add(EventName.doorOpen)
     if cs_out.seatbeltUnlatched:
       events.add(EventName.seatbeltNotLatched)
-    if self.dragonconf.dpGearCheck and cs_out.gearShifter != GearShifter.drive and cs_out.gearShifter not in extra_gears:
+    if cs_out.gearShifter != GearShifter.drive and cs_out.gearShifter not in extra_gears:
       events.add(EventName.wrongGear)
     if cs_out.gearShifter == GearShifter.reverse:
       events.add(EventName.reverseGear)
-    if not self.dragonconf.dpAtl and not cs_out.cruiseState.available:
+    if not cs_out.cruiseState.available:
       events.add(EventName.wrongCarMode)
     if cs_out.espDisabled:
       events.add(EventName.espDisabled)
-    if cs_out.gasPressed and not self.dragonconf.dpAllowGas and not self.dragonconf.dpAtl:
+    if cs_out.gasPressed:
       events.add(EventName.gasPressed)
     if cs_out.stockFcw:
       events.add(EventName.stockFcw)
     if cs_out.stockAeb:
       events.add(EventName.stockAeb)
-    if travis:
-      if cs_out.vEgo > MAX_CTRL_SPEED:
-        events.add(EventName.speedTooHigh)
-    else:
-      if cs_out.vEgo > self.dragonconf.dpMaxCtrlSpeed:
-        events.add(EventName.speedTooHigh)
+    if cs_out.vEgo > MAX_CTRL_SPEED:
+      events.add(EventName.speedTooHigh)
     if cs_out.cruiseState.nonAdaptive:
       events.add(EventName.wrongCruiseMode)
 
-    if not self.dragonconf.dpLatCtrl:
-      events.add(EventName.manualSteeringRequired)
-    elif self.dragonconf.dpSteeringOnSignal and (cs_out.leftBlinker or cs_out.rightBlinker):
-      events.add(EventName.manualSteeringRequiredBlinkersOn)
-    elif cs_out.steerError:
+    if cs_out.steerError:
       events.add(EventName.steerUnavailable)
     elif cs_out.steerWarning:
       events.add(EventName.steerTempUnavailable)
