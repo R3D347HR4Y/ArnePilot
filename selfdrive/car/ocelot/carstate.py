@@ -5,7 +5,12 @@ from selfdrive.car.interfaces import CarStateBase
 from opendbc.can.parser import CANParser
 from selfdrive.config import Conversions as CV
 from selfdrive.car.ocelot.values import CAR, DBC, STEER_THRESHOLD
+from common.params import Params
+import cereal.messaging as messaging
+from common.travis_checker import travis
+from common.op_params import opParams
 
+op_params = opParams()
 
 class CarState(CarStateBase):
   def __init__(self, CP):
@@ -15,6 +20,9 @@ class CarState(CarStateBase):
     self.setSpeed = 0
     self.enabled = 0
     self.oldEnabled = 0
+    if not travis:
+      self.pm = messaging.PubMaster(['liveTrafficData'])
+      self.sm = messaging.SubMaster(['liveMapData'])
 
   def update(self, cp, cp_body):
     ret = car.CarState.new_message()
@@ -36,6 +44,7 @@ class CarState(CarStateBase):
 
     #Ibooster data
     ret.brakePressed = cp.vl["BRAKE_STATUS"]['IBOOSTER_BRAKE_APPLIED']
+    ret.brakeUnavailable = !cp.vl["BRAKE_STATUS"]['BRAKE_OK']
 
     if CP.enableGasInterceptor:
       ret.gas = (cp.vl["GAS_SENSOR"]['PED_GAS'] + cp.vl["GAS_SENSOR"]['PED_GAS2']) / 2.
@@ -83,6 +92,9 @@ class CarState(CarStateBase):
         ret.cruiseState.speed = self.setSpeed - 5*CV.MPH_TO_MS
 
     ret.cruiseState.enabled = self.enabled
+    if not travis:
+      self.sm.update(0)
+      self.smartspeed = self.sm['liveMapData'].speedLimit
 
 
 
@@ -98,6 +110,8 @@ class CarState(CarStateBase):
       # sig_name, sig_address, default
       ("TOYOTA_STEER_ANGLE", "TOYOTA_STEERING_ANGLE_SENSOR1", 0),
       ("IBOOSTER_BRAKE_APPLIED", "BRAKE_STATUS", 0),
+      ("BRAKE_OK", "BRAKE_STATUS", 0),
+      ("BRAKE_PEDAL_POSITION", "BRAKE_STATUS", 0),
       ("TOYOTA_STEER_FRACTION", "TOYOTA_STEERING_ANGLE_SENSOR1", 0),
       ("TOYOTA_STEER_RATE", "TOYOTA_STEERING_ANGLE_SENSOR1", 0),
       ("SET_BTN", "HIM_CTRLS", 0),
