@@ -1,6 +1,6 @@
 from cereal import car
 from common.numpy_fast import clip
-from selfdrive.car import apply_toyota_steer_torque_limits, create_gas_command, make_can_msg
+from selfdrive.car import make_can_msg
 from selfdrive.car.ocelot.ocelotcan import create_steer_command, create_ibst_command, \
                                            create_pedal_command, create_msg_command
 from selfdrive.car.ocelot.values import Ecu, CAR, STATIC_MSGS, SteerLimitParams

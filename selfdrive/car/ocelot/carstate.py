@@ -44,7 +44,7 @@ class CarState(CarStateBase):
 
     #Ibooster data
     ret.brakePressed = cp.vl["BRAKE_STATUS"]['IBOOSTER_BRAKE_APPLIED']
-    ret.brakeUnavailable = !cp.vl["BRAKE_STATUS"]['BRAKE_OK']
+    ret.brakeUnavailable = not cp.vl["BRAKE_STATUS"]['BRAKE_OK']
 
     if CP.enableGasInterceptor:
       ret.gas = (cp.vl["GAS_SENSOR"]['PED_GAS'] + cp.vl["GAS_SENSOR"]['PED_GAS2']) / 2.
