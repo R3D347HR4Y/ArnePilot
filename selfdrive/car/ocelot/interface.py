@@ -27,21 +27,22 @@ class CarInterface(CarInterfaceBase):
     ret.steerActuatorDelay = 0.12  # Default delay, Prius has larger delay
     ret.steerLimitTimer = 0.4
 
+    if candidate == CAR.SMART_ROADSTER_COUPE
+        ret.lateralTuning.init('pid')
+        ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0.], [0.]]
+        stop_and_go = True
+        ret.safetyParam = 100
+        ret.wheelbase = 2.36
+        ret.steerRatio = 21
+        tire_stiffness_factor = 0.444
+        ret.mass = 810 + STD_CARGO_KG
+        ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.3], [0.05]]
+        ret.lateralTuning.pid.kf = 0.00007   # full torque for 20 deg at 80mph means 0.00007818594
+        ret.steerRateCost = 1.
+        ret.centerToFront = ret.wheelbase * 0.44
 
-    ret.lateralTuning.init('pid')
-    ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0.], [0.]]
-    stop_and_go = True
-    ret.safetyParam = 100
-    ret.wheelbase = 2.36
-    ret.steerRatio = 21
-    tire_stiffness_factor = 0.444
-    ret.mass = 810 + STD_CARGO_KG
-    ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.3], [0.05]]
-    ret.lateralTuning.pid.kf = 0.00007   # full torque for 20 deg at 80mph means 0.00007818594
 
 
-    ret.steerRateCost = 1.
-    ret.centerToFront = ret.wheelbase * 0.44
 
     # TODO: get actual value, for now starting with reasonable value for
     # civic and scaling by mass and wheelbase
@@ -52,7 +53,6 @@ class CarInterface(CarInterfaceBase):
     ret.tireStiffnessFront, ret.tireStiffnessRear = scale_tire_stiffness(ret.mass, ret.wheelbase, ret.centerToFront,
                                                                          tire_stiffness_factor=tire_stiffness_factor)
 
-    ret.enableCamera = is_ecu_disconnected(fingerprint[0], FINGERPRINTS, ECU_FINGERPRINT, candidate, Ecu.fwdCamera) or has_relay
     # Detect smartDSU, which intercepts ACC_CMD from the DSU allowing openpilot to send it
     # In TSS2 cars the camera does long control
     ret.enableGasInterceptor = 0x201 in fingerprint[0]
@@ -64,8 +64,7 @@ class CarInterface(CarInterfaceBase):
     # to a negative value, so it won't matter.
     ret.minEnableSpeed = -1.
 
-    # removing the DSU disables AEB and it's considered a community maintained feature
-    # intercepting the DSU is a community feature since it requires unofficial hardware
+
 
     ret.longitudinalTuning.deadzoneBP = [0., 9.]
     ret.longitudinalTuning.deadzoneV = [0., .15]
@@ -101,18 +100,6 @@ class CarInterface(CarInterfaceBase):
     # events
     events = self.create_common_events(ret)
 
-    if self.cp_body.can_invalid_cnt >= 200 and self.CP.enableCamera:
-      events.add(EventName.invalidGiraffeToyota)
-    if self.CS.low_speed_lockout and self.CP.openpilotLongitudinalControl:
-      events.add(EventName.lowSpeedLockout)
-    if ret.vEgo < self.CP.minEnableSpeed and self.CP.openpilotLongitudinalControl:
-      events.add(EventName.belowEngageSpeed)
-      if c.actuators.gas > 0.1:
-        # some margin on the actuator to not false trigger cancellation while stopping
-        events.add(EventName.speedTooLow)
-      if ret.vEgo < 0.001:
-        # while in standstill, send a user alert
-        events.add(EventName.manualRestart)
 
     ret.events = events.to_msg()
 
