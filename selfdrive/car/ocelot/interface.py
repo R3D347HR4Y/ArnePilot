@@ -30,7 +30,6 @@ class CarInterface(CarInterfaceBase):
     if candidate == CAR.SMART_ROADSTER_COUPE
         ret.lateralTuning.init('pid')
         ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0.], [0.]]
-        stop_and_go = True
         ret.safetyParam = 100
         ret.wheelbase = 2.36
         ret.steerRatio = 21

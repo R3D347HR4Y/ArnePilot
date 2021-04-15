@@ -5,7 +5,6 @@ from selfdrive.car.interfaces import CarStateBase
 from opendbc.can.parser import CANParser
 from selfdrive.config import Conversions as CV
 from selfdrive.car.ocelot.values import CAR, DBC, STEER_THRESHOLD
-from common.params import Params
 import cereal.messaging as messaging
 from common.travis_checker import travis
 from common.op_params import opParams
@@ -46,7 +45,7 @@ class CarState(CarStateBase):
     ret.brakePressed = cp.vl["BRAKE_STATUS"]['IBOOSTER_BRAKE_APPLIED']
     ret.brakeUnavailable = not cp.vl["BRAKE_STATUS"]['BRAKE_OK']
 
-    if CP.enableGasInterceptor:
+    if self.CP.enableGasInterceptor:
       ret.gas = (cp.vl["GAS_SENSOR"]['PED_GAS'] + cp.vl["GAS_SENSOR"]['PED_GAS2']) / 2.
       ret.gasPressed = ret.gas > 15
 
