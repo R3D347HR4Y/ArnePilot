@@ -34,6 +34,9 @@ def create_ibst_command(packer, enabled, brake, raw_cnt):
   return packer.make_can_msg("BRAKE_COMMAND", 0, values)
 
 def create_msg_command(packer, enabled, setspeed, currspeed):
-  vaues = {
-
+  values = {
+    "ENABLED" : enabled,
+    "SET_SPEED" : setspeed,
+    "CURRENT_SPEED" : currspeed,
   }
+  return packer.make_can_msg("CURRENT_STATE", 0, values)

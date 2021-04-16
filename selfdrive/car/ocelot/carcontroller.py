@@ -94,8 +94,8 @@ class CarController():
     # toyota can trace shows this message at 42Hz, with counter adding alternatively 1 and 2;
     # sending it at 100Hz seem to allow a higher rate limit, as the rate limit seems imposed
     # on consecutive messages
-    
-      can_sends.append(create_steer_command(self.packer, apply_steer, apply_steer_req, frame))
+
+    can_sends.append(create_steer_command(self.packer, apply_steer, apply_steer_req, frame))
 
     if (frame % 2 == 0) and (CS.CP.enableGasInterceptor):
       # send exactly zero if apply_gas is zero. Interceptor will send the max between read value and apply_gas.
