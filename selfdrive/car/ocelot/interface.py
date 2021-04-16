@@ -27,7 +27,7 @@ class CarInterface(CarInterfaceBase):
     ret.steerActuatorDelay = 0.12  # Default delay, Prius has larger delay
     ret.steerLimitTimer = 0.4
 
-    if candidate == CAR.SMART_ROADSTER_COUPE
+    if candidate == CAR.SMART_ROADSTER_COUPE:
         ret.lateralTuning.init('pid')
         ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0.], [0.]]
         ret.safetyParam = 100

@@ -23,7 +23,7 @@ def create_pedal_command(packer, gas_amount, raw_cnt):
 
   return packer.make_can_msg("GAS_COMMAND", 0, values)
 
-def create_ibst_cmd(packer, enabled, brake, raw_cnt):
+def create_ibst_command(packer, enabled, brake, raw_cnt):
   values = {
     "BRAKE_POSITION_COMMAND" : 0,
     "BRAKE_RELATIVE_COMMAND": brake * 252,
@@ -32,3 +32,8 @@ def create_ibst_cmd(packer, enabled, brake, raw_cnt):
   }
 
   return packer.make_can_msg("BRAKE_COMMAND", 0, values)
+
+def create_msg_command(packer, enabled, setspeed, currspeed):
+  vaues = {
+
+  }

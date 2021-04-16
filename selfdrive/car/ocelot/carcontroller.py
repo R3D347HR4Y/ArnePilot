@@ -80,16 +80,7 @@ class CarController():
     else:
       apply_steer_req = 1
 
-    if not enabled and CS.pcm_acc_status:
-      # send pcm acc cancel cmd if drive is disabled but pcm is still on, or if the system can't be activated
-      pcm_cancel_cmd = 1
 
-    # on entering standstill, send standstill request
-    if CS.out.standstill and not self.last_standstill:
-      self.standstill_req = True
-    if CS.pcm_acc_status != 8:
-      # pcm entered standstill or it's disabled
-      self.standstill_req = False
 
     self.last_steer = apply_steer
     self.last_accel = apply_accel
@@ -103,37 +94,21 @@ class CarController():
     # toyota can trace shows this message at 42Hz, with counter adding alternatively 1 and 2;
     # sending it at 100Hz seem to allow a higher rate limit, as the rate limit seems imposed
     # on consecutive messages
-    if Ecu.fwdCamera in self.fake_ecus:
+    
       can_sends.append(create_steer_command(self.packer, apply_steer, apply_steer_req, frame))
 
     if (frame % 2 == 0) and (CS.CP.enableGasInterceptor):
       # send exactly zero if apply_gas is zero. Interceptor will send the max between read value and apply_gas.
       # This prevents unexpected pedal range rescaling
-      can_sends.append(create_gas_command(self.packer, apply_gas, frame//2))
+      can_sends.append(create_pedal_command(self.packer, apply_gas, frame//2))
 
     # ui mesg is at 100Hz but we send asap if:
     # - there is something to display
     # - there is something to stop displaying
-    fcw_alert = hud_alert == VisualAlert.fcw
-    steer_alert = hud_alert == VisualAlert.steerRequired
 
-    send_ui = False
-    if ((fcw_alert or steer_alert) and not self.alert_active) or \
-       (not (fcw_alert or steer_alert) and self.alert_active):
-      send_ui = True
-      self.alert_active = not self.alert_active
-    elif pcm_cancel_cmd:
-      # forcing the pcm to disengage causes a bad fault sound so play a good sound instead
-      send_ui = True
 
-    if (frame % 100 == 0 or send_ui) and Ecu.fwdCamera in self.fake_ecus:
-      can_sends.append(create_ui_command(self.packer, steer_alert, pcm_cancel_cmd, left_line, right_line, left_lane_depart, right_lane_depart))
+    if (frame % 100 == 0 or send_ui):
+      can_sends.append(create_msg_command(self.packer, self.enabled, self.setspeed, CS.vEgo))
 
-    if frame % 100 == 0 and Ecu.dsu in self.fake_ecus:
-      can_sends.append(create_fcw_command(self.packer, fcw_alert))
-
-    #*** static msgs ***
-
-    
 
     return can_sends
