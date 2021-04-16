@@ -1,5 +1,5 @@
 from cereal import car
-from common.numpy_fast import mean, around
+from common.numpy_fast import mean, int_rnd
 from opendbc.can.can_define import CANDefine
 from selfdrive.car.interfaces import CarStateBase
 from opendbc.can.parser import CANParser
@@ -81,7 +81,7 @@ class CarState(CarStateBase):
     self.setSpeed = ret.cruiseState.speed
     #if enabled from off (rising edge) set the speed to the current speed rounded to 5mph
     if self.enabled and not(self.oldEnabled):
-        ret.cruiseState.speed = (around((ret.vEgo * CV.MS_TO_MPH)/5)*5) * CV.MPH_TO_MS
+        ret.cruiseState.speed = (int_rnd((ret.vEgo * CV.MS_TO_MPH)/5)*5) * CV.MPH_TO_MS
 
     #increase or decrease speed in 5mph increments
     if cp.vl["HIM_CTRLS"]['SPEEDUP_BTN']:

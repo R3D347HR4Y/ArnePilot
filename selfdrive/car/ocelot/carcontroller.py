@@ -3,7 +3,7 @@ from common.numpy_fast import clip
 from selfdrive.car import make_can_msg
 from selfdrive.car.ocelot.ocelotcan import create_steer_command, create_ibst_command, \
                                            create_pedal_command, create_msg_command
-from selfdrive.car.ocelot.values import Ecu, CAR, STATIC_MSGS, SteerLimitParams
+from selfdrive.car.ocelot.values import Ecu, CAR, SteerLimitParams
 from opendbc.can.packer import CANPacker
 from common.dp_common import common_controller_ctrl
 
@@ -108,7 +108,7 @@ class CarController():
 
 
     if (frame % 100 == 0 or send_ui):
-      can_sends.append(create_msg_command(self.packer, self.enabled, self.setspeed, CS.vEgo))
+      can_sends.append(create_msg_command(self.packer, CS.enabled, CS.setspeed, CS.vEgo))
 
 
     return can_sends

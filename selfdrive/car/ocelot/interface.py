@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 from cereal import car
-from selfdrive.config import Conversions as CV
-from selfdrive.car.ocelot.values import Ecu, ECU_FINGERPRINT, CAR, FINGERPRINTS
-from selfdrive.car import STD_CARGO_KG, scale_rot_inertia, scale_tire_stiffness, is_ecu_disconnected, gen_empty_fingerprint
+from selfdrive.car.ocelot.values import CAR
+from selfdrive.car import STD_CARGO_KG, scale_rot_inertia, scale_tire_stiffness, gen_empty_fingerprint
 from selfdrive.swaglog import cloudlog
 from selfdrive.car.interfaces import CarInterfaceBase
 
