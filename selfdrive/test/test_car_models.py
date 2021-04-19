@@ -521,6 +521,7 @@ non_tested_cars = [
   TOYOTA.LEXUS_ISH,
   VOLKSWAGEN.GENERICMQB,
   #VOLKSWAGEN.GENERICPQ,
+  OCELOT.SMART_ROADSTER_COUPE,
 ]
 
 if __name__ == "__main__":

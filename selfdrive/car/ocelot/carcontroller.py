@@ -1,6 +1,6 @@
 from cereal import car
 from common.numpy_fast import clip
-from selfdrive.car import make_can_msg
+from selfdrive.car import apply_toyota_steer_torque_limits
 from selfdrive.car.ocelot.ocelotcan import create_steer_command, create_ibst_command, \
                                            create_pedal_command, create_msg_command
 from selfdrive.car.ocelot.values import CAR, SteerLimitParams
@@ -96,7 +96,7 @@ class CarController():
     # on consecutive messages
 
     can_sends.append(create_steer_command(self.packer, apply_steer, apply_steer_req, frame))
-    can_sends.append(create_ibst_cmd(self.packer, enabled, actuators.brake, frame))
+    can_sends.append(create_ibst_command(self.packer, enabled, actuators.brake, frame))
 
     if (frame % 2 == 0) and (CS.CP.enableGasInterceptor):
       # send exactly zero if apply_gas is zero. Interceptor will send the max between read value and apply_gas.
@@ -108,7 +108,7 @@ class CarController():
     # - there is something to stop displaying
 
 
-    if (frame % 100 == 0 or send_ui):
+    if (frame % 100 == 0):
       can_sends.append(create_msg_command(self.packer, CS.enabled, CS.setspeed, CS.vEgo))
 
 
