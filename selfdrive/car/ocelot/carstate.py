@@ -28,7 +28,7 @@ class CarState(CarStateBase):
 
     #Car specific information
     if self.CP.carFingerprint == CAR.SMART_ROADSTER_COUPE:
-        ret.doorOpen = any([cp_body.vl["BODYCONTROL"]['RIGHT_DOOR'], cp.vl["BODYCONTROL"]['LEFT_DOOR']]) != 0
+        ret.doorOpen = any([cp_body.vl["BODYCONTROL"]['RIGHT_DOOR'], cp_body.vl["BODYCONTROL"]['LEFT_DOOR']]) != 0
         ret.seatbeltUnlatched = 0
         ret.leftBlinker = cp_body.vl["BODYCONTROL"]['LEFT_SIGNAL']
         ret.rightBlinker = cp_body.vl["BODYCONTROL"]['RIGHT_SIGNAL']
@@ -37,7 +37,7 @@ class CarState(CarStateBase):
         ret.wheelSpeeds.fr = cp_body.vl["SMARTROADSTERWHEELSPEEDS"]['WHEELSPEED_FR'] * CV.MPH_TO_MS
         ret.wheelSpeeds.rl = cp_body.vl["SMARTROADSTERWHEELSPEEDS"]['WHEELSPEED_RL'] * CV.MPH_TO_MS
         ret.wheelSpeeds.rr = cp_body.vl["SMARTROADSTERWHEELSPEEDS"]['WHEELSPEED_RR'] * CV.MPH_TO_MS
-        can_gear = int(cp.vl["GEAR_PACKET"]['GEAR'])
+        can_gear = int(cp_body.vl["GEAR_PACKET"]['GEAR'])
         ret.gearShifter = self.parse_gear_shifter(self.shifter_values.get(can_gear, None))
 
     #Ibooster data
