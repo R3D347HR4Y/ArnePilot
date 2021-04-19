@@ -14,7 +14,7 @@ op_params = opParams()
 class CarState(CarStateBase):
   def __init__(self, CP):
     super().__init__(CP)
-    can_define = CANDefine(DBC[CP.carFingerprint]['pt'])
+    can_define = CANDefine(DBC[CP.carFingerprint]['chassis'])
     self.shifter_values = can_define.dv["GEAR_PACKET"]['GEAR']
     self.setSpeed = 0
     self.enabled = 0
@@ -161,4 +161,4 @@ class CarState(CarStateBase):
         signals.append(("BRAKEPEDAL", "ABS",0))
         signals.append(("GEAR","GEAR_PACKET", 0))
 
-    return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 1)
+    return CANParser(DBC[CP.carFingerprint]['chassis'], signals, checks, 1)
