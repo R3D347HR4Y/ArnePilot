@@ -3,9 +3,8 @@ from common.numpy_fast import clip
 from selfdrive.car import apply_toyota_steer_torque_limits
 from selfdrive.car.ocelot.ocelotcan import create_steer_command, create_ibst_command, \
                                            create_pedal_command, create_msg_command
-from selfdrive.car.ocelot.values import CAR, SteerLimitParams
+from selfdrive.car.ocelot.values import SteerLimitParams
 from opendbc.can.packer import CANPacker
-from common.dp_common import common_controller_ctrl
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
 

@@ -24,6 +24,7 @@ from selfdrive.car.mazda.values import CAR as MAZDA
 from selfdrive.car.subaru.values import CAR as SUBARU
 from selfdrive.car.toyota.values import CAR as TOYOTA
 from selfdrive.car.volkswagen.values import CAR as VOLKSWAGEN
+from selfdrive.car.ocelot.values import CAR as OCELOT
 
 os.environ['NOCRASH'] = '1'
 
