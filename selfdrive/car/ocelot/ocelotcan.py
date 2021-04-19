@@ -25,9 +25,9 @@ def create_pedal_command(packer, gas_amount, raw_cnt):
 
 def create_ibst_command(packer, enabled, brake, raw_cnt):
   values = {
-    "BRAKE_POSITION_COMMAND" : 0,
-    "BRAKE_RELATIVE_COMMAND": brake * 252,
-    "BRAKE_MODE": enabled,
+    "BRAKE_POSITION_COMMAND" : brake * 40,
+    "BRAKE_RELATIVE_COMMAND": 0,
+    "BRAKE_MODE": enabled * 2,
     "COUNTER" : raw_cnt,
   }
 

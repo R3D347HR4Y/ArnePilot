@@ -37,12 +37,12 @@ class CarState(CarStateBase):
         ret.wheelSpeeds.fr = cp_body.vl["SMARTROADSTERWHEELSPEEDS"]['WHEELSPEED_FR'] * CV.MPH_TO_MS
         ret.wheelSpeeds.rl = cp_body.vl["SMARTROADSTERWHEELSPEEDS"]['WHEELSPEED_RL'] * CV.MPH_TO_MS
         ret.wheelSpeeds.rr = cp_body.vl["SMARTROADSTERWHEELSPEEDS"]['WHEELSPEED_RR'] * CV.MPH_TO_MS
-        ret.brakeLights = cp_body.vl["ABS"]['BRAKEPEDAL']
         can_gear = int(cp.vl["GEAR_PACKET"]['GEAR'])
         ret.gearShifter = self.parse_gear_shifter(self.shifter_values.get(can_gear, None))
 
     #Ibooster data
-    ret.brakePressed = cp.vl["BRAKE_STATUS"]['IBOOSTER_BRAKE_APPLIED']
+    ret.brakePressed = cp.vl["BRAKE_STATUS"]['DRIVER_BRAKE_APPLIED']
+    ret.brakeLights = cp.vl["BRAKE_STATUS"]['BRAKE_APPLIED']
     ret.brakeUnavailable = not cp.vl["BRAKE_STATUS"]['BRAKE_OK']
 
     if self.CP.enableGasInterceptor:
@@ -108,7 +108,8 @@ class CarState(CarStateBase):
     signals = [
       # sig_name, sig_address, default
       ("TOYOTA_STEER_ANGLE", "TOYOTA_STEERING_ANGLE_SENSOR1", 0),
-      ("IBOOSTER_BRAKE_APPLIED", "BRAKE_STATUS", 0),
+      ("BRAKE_APPLIED", "BRAKE_STATUS", 0),
+      ("DRIVER_BRAKE_APPLIED", "BRAKE_STATUS", 0),
       ("BRAKE_OK", "BRAKE_STATUS", 0),
       ("BRAKE_PEDAL_POSITION", "BRAKE_STATUS", 0),
       ("TOYOTA_STEER_FRACTION", "TOYOTA_STEERING_ANGLE_SENSOR1", 0),
