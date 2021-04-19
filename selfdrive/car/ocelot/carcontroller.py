@@ -3,7 +3,7 @@ from common.numpy_fast import clip
 from selfdrive.car import make_can_msg
 from selfdrive.car.ocelot.ocelotcan import create_steer_command, create_ibst_command, \
                                            create_pedal_command, create_msg_command
-from selfdrive.car.ocelot.values import Ecu, CAR, SteerLimitParams
+from selfdrive.car.ocelot.values import CAR, SteerLimitParams
 from opendbc.can.packer import CANPacker
 from common.dp_common import common_controller_ctrl
 
@@ -96,6 +96,7 @@ class CarController():
     # on consecutive messages
 
     can_sends.append(create_steer_command(self.packer, apply_steer, apply_steer_req, frame))
+    can_sends.append(create_ibst_cmd(self.packer, enabled, actuators.brake, frame))
 
     if (frame % 2 == 0) and (CS.CP.enableGasInterceptor):
       # send exactly zero if apply_gas is zero. Interceptor will send the max between read value and apply_gas.

@@ -15,7 +15,7 @@ class CarState(CarStateBase):
   def __init__(self, CP):
     super().__init__(CP)
     can_define = CANDefine(DBC[CP.carFingerprint]['pt'])
-    self.shifter_values = can_define.dv["GEARBOX"]['GEARPOSITION']
+    self.shifter_values = can_define.dv["GEAR_PACKET"]['GEAR']
     self.setSpeed = 0
     self.enabled = 0
     self.oldEnabled = 0
@@ -38,7 +38,7 @@ class CarState(CarStateBase):
         ret.wheelSpeeds.rl = cp_body.vl["SMARTROADSTERWHEELSPEEDS"]['WHEELSPEED_RL'] * CV.MPH_TO_MS
         ret.wheelSpeeds.rr = cp_body.vl["SMARTROADSTERWHEELSPEEDS"]['WHEELSPEED_RR'] * CV.MPH_TO_MS
         ret.brakeLights = cp_body.vl["ABS"]['BRAKEPEDAL']
-        can_gear = int(cp.vl["GEARBOX"]['GEARPOSITION'])
+        can_gear = int(cp.vl["GEAR_PACKET"]['GEAR'])
         ret.gearShifter = self.parse_gear_shifter(self.shifter_values.get(can_gear, None))
 
     #Ibooster data
@@ -158,6 +158,6 @@ class CarState(CarStateBase):
         signals.append(("WHEELSPEED_RL", "SMARTROADSTERWHEELSPEEDS",0))
         signals.append(("WHEELSPEED_RR", "SMARTROADSTERWHEELSPEEDS",0))
         signals.append(("BRAKEPEDAL", "ABS",0))
-        signals.append(("GEARPOSITION","GEARBOX", 0))
+        signals.append(("GEAR","GEAR_PACKET", 0))
 
     return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 1)
