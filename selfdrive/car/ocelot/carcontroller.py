@@ -1,5 +1,6 @@
 from cereal import car
 from common.numpy_fast import clip
+from selfdrive.config import Conversions as CV
 from selfdrive.car import apply_toyota_steer_torque_limits
 from selfdrive.car.ocelot.ocelotcan import create_steer_command, create_ibst_command, \
                                            create_pedal_command, create_msg_command
@@ -68,16 +69,6 @@ class CarController():
     apply_steer = apply_toyota_steer_torque_limits(new_steer, self.last_steer, CS.out.steeringTorqueEps, SteerLimitParams)
     self.steer_rate_limited = new_steer != apply_steer
 
-    # only cut torque when steer state is a known fault
-    if CS.steer_state in [9, 25]:
-      self.last_fault_frame = frame
-
-    # Cut steering for 2s after fault
-    if not enabled or (frame - self.last_fault_frame < 200):
-      apply_steer = 0
-      apply_steer_req = 0
-    else:
-      apply_steer_req = 1
 
 
 
@@ -108,7 +99,7 @@ class CarController():
 
 
     if (frame % 100 == 0):
-      can_sends.append(create_msg_command(self.packer, CS.enabled, CS.setspeed, CS.vEgo))
+      can_sends.append(create_msg_command(self.packer, CS.enabled, CS.setspeed * CV.MS_TO_MPH, CS.vEgo * CV.MS_TO_MPH))
 
 
     return can_sends
