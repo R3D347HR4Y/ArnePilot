@@ -109,7 +109,7 @@ class CarController():
 
 
     if (frame % 100 == 0):
-      can_sends.append(create_msg_command(self.packer, CS.enabled, CS.setspeed * CV.MS_TO_MPH, CS.vEgo * CV.MS_TO_MPH))
+      can_sends.append(create_msg_command(self.packer, CS.enabled, CS.setSpeed * CV.MS_TO_MPH, CS.vEgo * CV.MS_TO_MPH))
 
 
     return can_sends
