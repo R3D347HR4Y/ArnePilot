@@ -30,9 +30,9 @@ class CarState(CarStateBase):
     if self.CP.carFingerprint == CAR.SMART_ROADSTER_COUPE:
         ret.doorOpen = any([cp_body.vl["BODYCONTROL"]['RIGHT_DOOR'], cp_body.vl["BODYCONTROL"]['LEFT_DOOR']]) != 0
         ret.seatbeltUnlatched = False
-        ret.leftBlinker = cp_body.vl["BODYCONTROL"]['LEFT_SIGNAL']
-        ret.rightBlinker = cp_body.vl["BODYCONTROL"]['RIGHT_SIGNAL']
-        ret.espDisabled = cp_body.vl["ABS"]['ESP_STATUS']
+        ret.leftBlinker = bool(cp_body.vl["BODYCONTROL"]['LEFT_SIGNAL'])
+        ret.rightBlinker = bool(cp_body.vl["BODYCONTROL"]['RIGHT_SIGNAL'])
+        ret.espDisabled = bool(cp_body.vl["ABS"]['ESP_STATUS'])
         ret.wheelSpeeds.fl = cp_body.vl["SMARTROADSTERWHEELSPEEDS"]['WHEELSPEED_FL'] * CV.MPH_TO_MS
         ret.wheelSpeeds.fr = cp_body.vl["SMARTROADSTERWHEELSPEEDS"]['WHEELSPEED_FR'] * CV.MPH_TO_MS
         ret.wheelSpeeds.rl = cp_body.vl["SMARTROADSTERWHEELSPEEDS"]['WHEELSPEED_RL'] * CV.MPH_TO_MS
@@ -41,9 +41,9 @@ class CarState(CarStateBase):
         ret.gearShifter = self.parse_gear_shifter(self.shifter_values.get(can_gear, None))
 
     #Ibooster data
-    ret.brakePressed = cp.vl["BRAKE_STATUS"]['DRIVER_BRAKE_APPLIED']
-    ret.brakeLights = cp.vl["BRAKE_STATUS"]['BRAKE_APPLIED']
-    ret.brakeUnavailable = not cp.vl["BRAKE_STATUS"]['BRAKE_OK']
+    ret.brakePressed = bool(cp.vl["BRAKE_STATUS"]['DRIVER_BRAKE_APPLIED'])
+    ret.brakeLights = bool(cp.vl["BRAKE_STATUS"]['BRAKE_APPLIED'])
+    ret.brakeUnavailable = not bool(cp.vl["BRAKE_STATUS"]['BRAKE_OK'])
 
     if self.CP.enableGasInterceptor:
       ret.gas = (cp.vl["GAS_SENSOR"]['PED_GAS'] + cp.vl["GAS_SENSOR"]['PED_GAS2']) / 2.
@@ -63,7 +63,7 @@ class CarState(CarStateBase):
     ret.steeringTorque = cp.vl["STEERING_STATUS"]['STEER_TORQUE_DRIVER']
     ret.steeringTorqueEps = cp.vl["STEERING_STATUS"]['STEER_TORQUE_EPS']
     ret.steeringPressed = abs(ret.steeringTorque) > STEER_THRESHOLD
-    ret.steerWarning = cp.vl["STEERING_STATUS"]['STEERING_OK'] != 0
+    ret.steerUnavailable = bool(cp.vl["STEERING_STATUS"]['STEERING_OK'] != 0)
 
     ret.cruiseState.available = False
     ret.cruiseState.standstill = False
