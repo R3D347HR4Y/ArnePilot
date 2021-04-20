@@ -64,7 +64,7 @@ class CarState(CarStateBase):
     ret.steeringTorque = cp.vl["STEERING_STATUS"]['STEERING_TORQUE_DRIVER']
     ret.steeringTorqueEps = cp.vl["STEERING_STATUS"]['STEERING_TORQUE_EPS']
     ret.steeringPressed = abs(ret.steeringTorque) > STEER_THRESHOLD
-    ret.steerUnavailable = bool(cp.vl["STEERING_STATUS"]['STEERING_OK'] != 0)
+    ret.steerError = bool(cp.vl["STEERING_STATUS"]['STEERING_OK'] != 0)
 
     ret.cruiseState.available = False
     ret.cruiseState.standstill = False
