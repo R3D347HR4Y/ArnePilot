@@ -17,7 +17,7 @@ class CarState(CarStateBase):
     can_define = CANDefine(DBC[CP.carFingerprint]['chassis'])
     self.shifter_values = can_define.dv["GEAR_PACKET"]['GEAR']
     self.setSpeed = 0
-    seld.currSpeed = 0
+    self.currSpeed = 0
     self.enabled = False
     self.oldEnabled = False
     self.brakeUnavailable = True
