@@ -19,6 +19,7 @@ class CarState(CarStateBase):
     self.setSpeed = 0
     self.enabled = False
     self.oldEnabled = False
+    self.brakeUnavailable = True
     if not travis:
       self.pm = messaging.PubMaster(['liveTrafficData'])
       self.sm = messaging.SubMaster(['liveMapData'])
@@ -43,7 +44,7 @@ class CarState(CarStateBase):
     #Ibooster data
     ret.brakePressed = bool(cp.vl["BRAKE_STATUS"]['DRIVER_BRAKE_APPLIED'])
     ret.brakeLights = bool(cp.vl["BRAKE_STATUS"]['BRAKE_APPLIED'])
-    ret.brakeUnavailable = not bool(cp.vl["BRAKE_STATUS"]['BRAKE_OK'])
+    self.brakeUnavailable = not bool(cp.vl["BRAKE_STATUS"]['BRAKE_OK'])
 
     if self.CP.enableGasInterceptor:
       ret.gas = (cp.vl["GAS_SENSOR"]['PED_GAS'] + cp.vl["GAS_SENSOR"]['PED_GAS2']) / 2.
