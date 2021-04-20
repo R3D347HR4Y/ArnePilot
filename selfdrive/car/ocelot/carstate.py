@@ -74,7 +74,7 @@ class CarState(CarStateBase):
     self.oldEnabled = self.enabled
 
     if cp.vl["HIM_CTRLS"]['SET_BTN']:
-        self.enabled = False
+        self.enabled = True
 
     if cp.vl["HIM_CTRLS"]['CANCEL_BTN']:
         self.enabled = False
