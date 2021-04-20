@@ -61,8 +61,8 @@ class CarState(CarStateBase):
 
 
     #Steering information from smart standin ECU
-    ret.steeringTorque = cp.vl["STEERING_STATUS"]['STEER_TORQUE_DRIVER']
-    ret.steeringTorqueEps = cp.vl["STEERING_STATUS"]['STEER_TORQUE_EPS']
+    ret.steeringTorque = cp.vl["STEERING_STATUS"]['STEERING_TORQUE_DRIVER']
+    ret.steeringTorqueEps = cp.vl["STEERING_STATUS"]['STEERING_TORQUE_EPS']
     ret.steeringPressed = abs(ret.steeringTorque) > STEER_THRESHOLD
     ret.steerUnavailable = bool(cp.vl["STEERING_STATUS"]['STEERING_OK'] != 0)
 
