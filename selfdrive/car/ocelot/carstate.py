@@ -17,8 +17,8 @@ class CarState(CarStateBase):
     can_define = CANDefine(DBC[CP.carFingerprint]['chassis'])
     self.shifter_values = can_define.dv["GEAR_PACKET"]['GEAR']
     self.setSpeed = 0
-    self.enabled = 0
-    self.oldEnabled = 0
+    self.enabled = False
+    self.oldEnabled = False
     if not travis:
       self.pm = messaging.PubMaster(['liveTrafficData'])
       self.sm = messaging.SubMaster(['liveMapData'])
@@ -29,7 +29,7 @@ class CarState(CarStateBase):
     #Car specific information
     if self.CP.carFingerprint == CAR.SMART_ROADSTER_COUPE:
         ret.doorOpen = any([cp_body.vl["BODYCONTROL"]['RIGHT_DOOR'], cp_body.vl["BODYCONTROL"]['LEFT_DOOR']]) != 0
-        ret.seatbeltUnlatched = 0
+        ret.seatbeltUnlatched = False
         ret.leftBlinker = cp_body.vl["BODYCONTROL"]['LEFT_SIGNAL']
         ret.rightBlinker = cp_body.vl["BODYCONTROL"]['RIGHT_SIGNAL']
         ret.espDisabled = cp_body.vl["ABS"]['ESP_STATUS']
@@ -65,7 +65,7 @@ class CarState(CarStateBase):
     ret.steeringPressed = abs(ret.steeringTorque) > STEER_THRESHOLD
     ret.steerWarning = cp.vl["STEERING_STATUS"]['STEERING_OK'] != 0
 
-    ret.cruiseState.available = 1
+    ret.cruiseState.available = False
     ret.cruiseState.standstill = False
     ret.cruiseState.nonAdaptive = False
 
@@ -73,10 +73,10 @@ class CarState(CarStateBase):
     self.oldEnabled = self.enabled
 
     if cp.vl["HIM_CTRLS"]['SET_BTN']:
-        self.enabled = 1
+        self.enabled = False
 
     if cp.vl["HIM_CTRLS"]['CANCEL_BTN']:
-        self.enabled = 0
+        self.enabled = False
 
     self.setSpeed = ret.cruiseState.speed
     #if enabled from off (rising edge) set the speed to the current speed rounded to 5mph
