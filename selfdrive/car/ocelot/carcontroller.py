@@ -1,7 +1,7 @@
 from cereal import car
 from common.numpy_fast import clip
 from selfdrive.config import Conversions as CV
-from selfdrive.car import apply_toyota_steer_torque_limits
+from selfdrive.car import apply_std_steer_torque_limits
 from selfdrive.car.ocelot.ocelotcan import create_steer_command, create_ibst_command, \
                                            create_pedal_command, create_msg_command
 from selfdrive.car.ocelot.values import SteerLimitParams
@@ -46,12 +46,11 @@ class CarController():
     self.last_fault_frame = -200
     self.steer_rate_limited = False
 
-    self.last_brake = 0.
 
     self.packer = CANPacker(dbc_name)
 
   def update(self, enabled, CS, frame, actuators, pcm_cancel_cmd, hud_alert,
-             left_line, right_line, lead, left_lane_depart, right_lane_depart):
+             left_line, right_line, lead, left_lane_depart, right_lane_depart, dragonconf):
 
     # *** compute control surfaces ***
 
@@ -71,7 +70,7 @@ class CarController():
 
     # steer torque
     new_steer = int(round(actuators.steer * SteerLimitParams.STEER_MAX))
-    apply_steer = apply_toyota_steer_torque_limits(new_steer, self.last_steer, CS.out.steeringTorqueEps, SteerLimitParams)
+    apply_steer = apply_std_steer_torque_limits(new_steer, self.last_steer, CS.out.steeringTorque, SteerLimitParams)
     self.steer_rate_limited = new_steer != apply_steer
 
     # only cut torque when steer state is a known fault
