@@ -6,10 +6,13 @@ Ecu = car.CarParams.Ecu
 
 # Steer torque limits
 class SteerLimitParams:
-  STEER_MAX = 1500
-  STEER_DELTA_UP = 10       # 1.5s time to peak torque
-  STEER_DELTA_DOWN = 25     # always lower than 45 otherwise the Rav4 faults (Prius seems ok with 50)
-  STEER_ERROR_MAX = 350     # max delta between torque cmd and torque motor
+  STEER_MAX = 2047              # max_steer 4095
+  STEER_STEP = 2                # how often we update the steer cmd
+  STEER_DELTA_UP = 50           # torque increase per refresh, 0.8s to max
+  STEER_DELTA_DOWN = 70         # torque decrease per refresh
+  STEER_DRIVER_ALLOWANCE = 60   # allowed driver torque before start limiting
+  STEER_DRIVER_MULTIPLIER = 10  # weight driver torque heavily
+  STEER_DRIVER_FACTOR = 1     
 
 class CAR:
   SMART_ROADSTER_COUPE = "SMART ROADSTER COUPE 2003-2006"
