@@ -181,8 +181,36 @@ static void update_track_data(UIState *s, const cereal::ModelDataV2::XYZTData::R
 }
 
 static void ui_draw_track(UIState *s, track_vertices_data *pvd) {
-  NVGpaint track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h * .4,
+  if (pvd->cnt == 0) return;
+
+   nvgBeginPath(s->vg);
+   nvgMoveTo(s->vg, pvd->v[0].x, pvd->v[0].y);
+   for (int i=1; i<pvd->cnt; i++) {
+     nvgLineTo(s->vg, pvd->v[i].x, pvd->v[i].y);
+   }
+   nvgClosePath(s->vg);
+
+   NVGpaint track_bg;
+   if (s->scene.controls_state.getEnabled()) {
+     // Draw colored MPC track Kegman's
+     if (s->scene.steerOverride) {
+       track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h*.4,
+         nvgRGBA(0, 191, 255, 255), nvgRGBA(0, 95, 128, 50));
+     } else {
+       int torque_scale = (int)fabs(510*(float)s->scene.output_scale);
+       int red_lvl = fmin(255, torque_scale);
+       int green_lvl = fmin(255, 510-torque_scale);
+       track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h*.4,
+         nvgRGBA(          red_lvl,            green_lvl,  0, 255),
+         nvgRGBA((int)(0.5*red_lvl), (int)(0.5*green_lvl), 0, 50));
+     }
+   } else {
+     // Draw white vision track
+     track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h * .4,
                                         COLOR_WHITE, COLOR_WHITE_ALPHA(0));
+  }
+  nvgFillPaint(s->vg, track_bg);
+  nvgFill(s->vg);
   ui_draw_line(s, &pvd->v[0], pvd->cnt, nullptr, &track_bg);
 }
 
@@ -311,17 +339,17 @@ static void ui_draw_world(UIState *s) {
 }
 
 static void ui_draw_vision_maxspeed(UIState *s) {
-  char maxspeed_str[32];
   float maxspeed = s->scene.controls_state.getVCruise();
   int maxspeed_calc = maxspeed * 0.6225 + 0.5;
   float speedlimit = s->scene.speedlimit;
   int speedlim_calc = speedlimit * 2.2369363 + 0.5;
   if (s->is_metric) {
-    maxspeed_calc = maxspeed + 0.5;
+    maxspeed_calc = maxspeed +0.5;
     speedlim_calc = speedlimit * 3.6 + 0.5;
   }
   int speed_lim_off = speedlim_calc * (1 + s->speed_lim_off / 100.0);
   bool is_cruise_set = (maxspeed != 0 && maxspeed != SET_SPEED_NA);
+  if (is_cruise_set && !s->is_metric) { maxspeed *= 0.6225; }
   bool is_speedlim_valid = s->scene.speedlimit_valid;
   bool is_set_over_limit = is_speedlim_valid && s->scene.controls_state.getEnabled() &&
                        is_cruise_set && maxspeed_calc > (speedlim_calc + speed_lim_off);
@@ -352,15 +380,14 @@ static void ui_draw_vision_maxspeed(UIState *s) {
   ui_draw_text(s->vg, text_x, 148-border_shifter, "MAX", 26 * 2.5, COLOR_WHITE_ALPHA(is_cruise_set ? 200 : 100), s->font_sans_regular);
 
   if (is_cruise_set) {
-    snprintf(maxspeed_str, sizeof(maxspeed_str), "%d", maxspeed_calc);
-    ui_draw_text(s->vg, text_x, 242-border_shifter, maxspeed_str, 48 * 2.5, COLOR_WHITE, s->font_sans_bold);
+    const std::string maxspeed_str = std::to_string((int)std::nearbyint(maxspeed));
+    ui_draw_text(s->vg, text_x, 242-border_shifter, maxspeed_str.c_str(), 48 * 2.5, COLOR_WHITE, s->font_sans_bold);
   } else {
     ui_draw_text(s->vg, text_x, 242-border_shifter, "-", 42 * 2.5, COLOR_WHITE_ALPHA(100), s->font_sans_semibold);
   }
 }
 
 static void ui_draw_vision_speedlimit(UIState *s) {
-  char speedlim_str[32];
   float speedlimit = s->scene.speedlimit;
   int speedlim_calc = speedlimit * 2.2369363 + 0.5;
   if (s->is_metric) {
@@ -409,8 +436,8 @@ static void ui_draw_vision_speedlimit(UIState *s) {
   // Draw Speed Text
   color = s->is_ego_over_limit ? COLOR_WHITE : COLOR_BLACK;
   if (is_speedlim_valid) {
-    snprintf(speedlim_str, sizeof(speedlim_str), "%d", speedlim_calc);
-    ui_draw_text(s->vg, text_x, viz_speedlim_y + (is_speedlim_valid ? 170 : 165), speedlim_str, 48*2.5, color, s->font_sans_bold);
+    const std::string speedlim_calc_str = std::to_string((int)std::nearbyint(speedlim_calc));
+    ui_draw_text(s->vg, text_x, viz_speedlim_y + (is_speedlim_valid ? 170 : 165), speedlim_calc_str.c_str(), 48*2.5, color, s->font_sans_bold);
   } else {
     ui_draw_text(s->vg, text_x, viz_speedlim_y + (is_speedlim_valid ? 170 : 165), "N/A", 42*2.5, color, s->font_sans_semibold);
   }
@@ -419,21 +446,20 @@ static void ui_draw_vision_speedlimit(UIState *s) {
 static void ui_draw_vision_speed(UIState *s) {
   const Rect &viz_rect = s->scene.viz_rect;
   float v_ego = s->scene.controls_state.getVEgo();
-  float speed = v_ego * 2.2369363 + 0.5;
+  float speed = v_ego * 2.2369363;
   if (s->is_metric){
-    speed = v_ego * 3.6 + 0.5;
+    speed = v_ego * 3.6;
   }
   const int viz_speed_w = 280;
   const int viz_speed_x = viz_rect.centerX() - viz_speed_w/2;
   if (s->scene.dpUiSpeed) {
-  char speed_str[32];
 
   nvgBeginPath(s->vg);
   nvgRect(s->vg, viz_speed_x, viz_rect.y, viz_speed_w, header_h);
   nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_BASELINE);
 
-  snprintf(speed_str, sizeof(speed_str), "%d", (int)speed);
-  ui_draw_text(s->vg, viz_rect.centerX(), 240, speed_str, 96*2.5, COLOR_WHITE, s->font_sans_bold);
+  const std::string speed_str = std::to_string((int)std::nearbyint(speed));
+  ui_draw_text(s->vg, viz_rect.centerX(), 240, speed_str.c_str(), 96*2.5, COLOR_WHITE, s->font_sans_bold);
   ui_draw_text(s->vg, viz_rect.centerX(), 320, s->is_metric?"km/h":"mph", 36*2.5, COLOR_WHITE_ALPHA(200), s->font_sans_regular);
   }
   // dp blinker, from kegman
@@ -484,12 +510,42 @@ static void ui_draw_vision_event(UIState *s) {
     ui_draw_image(s->vg, viz_event_x - (img_turn_size / 4) + 80, viz_event_y + bdr_is - 45, img_turn_size, img_turn_size, s->img_turn, 1.0f);
   } else if (s->scene.controls_state.getEngageable()) {
     // draw steering wheel
-    const int bg_wheel_size = 90;
+    const int bg_wheel_size = 96;
     const int bg_wheel_x = viz_event_x + (viz_event_w-bg_wheel_size);
     const int bg_wheel_y = viz_event_y + (bg_wheel_size/2);
-    const NVGcolor color = bg_colors[s->status];
-
-    ui_draw_circle_image(s->vg, bg_wheel_x, bg_wheel_y, bg_wheel_size, s->img_wheel, color, 1.0f, bg_wheel_y - 25);
+    const int img_wheel_size = bg_wheel_size*1.5;
+    const int img_wheel_x = bg_wheel_x-(img_wheel_size/2);
+    const int img_wheel_y = bg_wheel_y-55;
+    const float img_rotation = s->scene.controls_state.getAngleSteers()/180*3.141592;
+    float img_wheel_alpha = 0.1f;
+    nvgBeginPath(s->vg);
+    nvgCircle(s->vg, bg_wheel_x, (bg_wheel_y + (bdr_s*1.5)), bg_wheel_size);
+    nvgFillColor(s->vg,bg_colors[s->status]);
+    nvgFill(s->vg);
+    img_wheel_alpha = 1.0f;
+    nvgSave(s->vg);
+    nvgTranslate(s->vg,bg_wheel_x,(bg_wheel_y + (bdr_s*1.5)));
+    nvgRotate(s->vg,-img_rotation);
+    nvgBeginPath(s->vg);
+    NVGpaint imgPaint = nvgImagePattern(s->vg, img_wheel_x-bg_wheel_x, img_wheel_y-(bg_wheel_y + (bdr_s*1.5)),
+        img_wheel_size, img_wheel_size, 0, s->img_wheel, img_wheel_alpha);
+    nvgRect(s->vg, img_wheel_x-bg_wheel_x, img_wheel_y-(bg_wheel_y + (bdr_s*1.5)), img_wheel_size, img_wheel_size);
+    nvgFillPaint(s->vg, imgPaint);
+    nvgFill(s->vg);
+    nvgRestore(s->vg);
+    // ui_draw_circle_image(s->vg, bg_wheel_x, bg_wheel_y, bg_wheel_size, s->img_wheel, color, 1.0f, bg_wheel_y - 25);
+    // draw hands on wheel pictogram under wheel pictogram.
+    auto handsOnWheelState = s->scene.dmonitoring_state.getHandsOnWheelState();
+    if (handsOnWheelState >= cereal::DMonitoringState::HandsOnWheelState::WARNING) {
+      NVGcolor color = COLOR_RED;
+      if (handsOnWheelState == cereal::DMonitoringState::HandsOnWheelState::WARNING) {
+        color = COLOR_YELLOW;
+      }
+      const int wheel_size = 96;
+      const int wheel_x = viz_event_x + viz_event_w - wheel_size;
+      const int wheel_y = bg_wheel_y + bdr_s + bg_wheel_size + wheel_size;
+      ui_draw_circle_image(s->vg, wheel_x, wheel_y, wheel_size, s->img_hands_on_wheel, color, 1.0f, wheel_y - 25);
+    }
   }
 }
 
@@ -814,6 +870,8 @@ void ui_nvg_init(UIState *s) {
   assert(s->img_map != 0);
   s->img_speed = nvgCreateImage(s->vg, "../assets/img_trafficSign_speedahead.png", 1);
   assert(s->img_speed != 0);
+  s->img_hands_on_wheel = nvgCreateImage(s->vg, "../assets/img_hands_on_wheel.png", 1);
+  assert(s->img_hands_on_wheel != 0);
   s->img_turn = nvgCreateImage(s->vg, "../assets/img_trafficSign_turn.png", 1);
   assert(s->img_turn != 0);
   s->img_face = nvgCreateImage(s->vg, "../assets/img_driver_face.png", 1);

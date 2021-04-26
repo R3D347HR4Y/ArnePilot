@@ -21,12 +21,16 @@ from selfdrive.controls.lib.alertmanager import AlertManager
 from selfdrive.controls.lib.vehicle_model import VehicleModel
 from selfdrive.controls.lib.planner import LON_MPC_STEP
 from selfdrive.locationd.calibrationd import Calibration
-#from common.travis_checker import travis
+from common.travis_checker import travis
 #import threading
 from selfdrive.interceptor import Interceptor
+from common.op_params import opParams
+op_params = opParams()
+
+distance_traveled = op_params.get('distance_traveled')
 
 LDW_MIN_SPEED = 31 * CV.MPH_TO_MS
-LANE_DEPARTURE_THRESHOLD = 0.1
+LANE_DEPARTURE_THRESHOLD = 0.15
 STEER_ANGLE_SATURATION_TIMEOUT = 1.0 / DT_CTRL
 STEER_ANGLE_SATURATION_THRESHOLD = 2.5  # Degrees
 
@@ -129,13 +133,24 @@ class Controls:
     self.active = False
     self.can_rcv_error = False
     self.soft_disable_timer = 0
-    self.v_cruise_kph = 255
-    self.v_cruise_kph_last = 0
+    self.v_cruise_kph = 255.0
+    self.v_cruise_kph_last = 0.0
     self.mismatch_counter = 0
     self.can_error_counter = 0
     self.last_blinker_frame = 0
     self.saturated_count = 0
-    self.distance_traveled = 0
+    self.distance_traveled_now = 0
+    if not travis:
+      self.distance_traveled = float(params.get("DistanceTraveled", encoding='utf8'))
+      self.distance_traveled_engaged = float(params.get("DistanceTraveledEngaged", encoding='utf8'))
+      self.distance_traveled_override = float(params.get("DistanceTraveledOverride", encoding='utf8'))
+    else:
+      self.distance_traveled = 0
+      self.distance_traveled_engaged = 0
+      self.distance_traveled_override = 0
+
+    self.distance_traveled_frame = 0
+
     self.last_functional_fan_frame = 0
     self.events_prev = []
     self.current_alert_types = [ET.PERMANENT]
@@ -247,7 +262,7 @@ class Controls:
     if not self.sm['liveLocationKalman'].sensorsOK and not NOSENSOR:
       if self.sm.frame > 5 / DT_CTRL:  # Give locationd some time to receive all the inputs
         self.events.add(EventName.sensorDataInvalid)
-    if not self.sm['liveLocationKalman'].gpsOK and (self.distance_traveled > 1000):
+    if not self.sm['liveLocationKalman'].gpsOK and (self.distance_traveled_now > 1000):
       # Not show in first 1 km to allow for driving out of garage. This event shows after 5 minutes
       if not (SIMULATION or NOSENSOR):  # TODO: send GPS in carla
         self.events.add(EventName.noGps)
@@ -340,20 +355,35 @@ class Controls:
     if not self.sm['dragonConf'].dpAtl and not self.sm['health'].controlsAllowed and self.enabled:
       self.mismatch_counter += 1
 
+    self.distance_traveled_now += CS.vEgo * DT_CTRL
     self.distance_traveled += CS.vEgo * DT_CTRL
+    if self.enabled:
+      self.distance_traveled_engaged += CS.vEgo * DT_CTRL
+      if CS.steeringPressed:
+        self.distance_traveled_override += CS.vEgo * DT_CTRL
+    if (self.sm.frame - self.distance_traveled_frame) * DT_CTRL > 10.0 and not travis and distance_traveled:
+      put_nonblocking("DistanceTraveled", str(round(self.distance_traveled,2)))
+      put_nonblocking("DistanceTraveledEngaged", str(round(self.distance_traveled_engaged,2)))
+      put_nonblocking("DistanceTraveledOverride", str(round(self.distance_traveled_override,2)))
+      self.distance_traveled_frame = self.sm.frame
 
     return CS
 
   def state_transition(self, CS):
     """Compute conditional state transitions and execute actions on state transitions"""
-
+    #if self.v_cruise_kph_last != self.v_cruise_kph:
+    #  print("v_cruise_kph_last = " + str(self.v_cruise_kph_last) + " v_cruise_kph = " + str(self.v_cruise_kph))
     self.v_cruise_kph_last = self.v_cruise_kph
 
     # if stock cruise is completely disabled, then we can use our own set speed logic
     if not self.CP.enableCruise:
+      #print("here")
       self.v_cruise_kph = update_v_cruise(self.v_cruise_kph, CS.buttonEvents, self.enabled)
     elif self.CP.enableCruise and CS.cruiseState.enabled:
+      #print("there")
       self.v_cruise_kph = CS.cruiseState.speed * CV.MS_TO_KPH
+      #print(" v_cruise_kph = " + str(self.v_cruise_kph))
+
 
     # decrease the soft disable timer at every step, as it's reset on
     # entrance in SOFT_DISABLING state
@@ -411,7 +441,9 @@ class Controls:
           else:
             self.state = State.enabled
           self.current_alert_types.append(ET.ENABLE)
+          #print("somewhere")
           self.v_cruise_kph = initialize_v_cruise(CS.vEgo, CS.buttonEvents, self.v_cruise_kph_last)
+          #print("self.v_cruise_kph = " + str(self.v_cruise_kph))
 
     # Check if actuators are enabled
     self.active = self.state == State.enabled or self.state == State.softDisabling
@@ -464,8 +496,8 @@ class Controls:
       if (lac_log.saturated and not CS.steeringPressed) or \
               (self.saturated_count > STEER_ANGLE_SATURATION_TIMEOUT):
         # Check if we deviated from the path
-        left_deviation = actuators.steer > 0 and path_plan.dPoly[3] > 0.1
-        right_deviation = actuators.steer < 0 and path_plan.dPoly[3] < -0.1
+        left_deviation = actuators.steer > 0 and path_plan.dPoly[3] > 0.15
+        right_deviation = actuators.steer < 0 and path_plan.dPoly[3] < -0.15
 
         if left_deviation or right_deviation:
           self.events.add(EventName.steerSaturated)
@@ -515,8 +547,8 @@ class Controls:
         self.dp_camera_offset = self.sm['dragonConf'].dpCameraOffset * 0.01 if self.sm['dragonConf'].dpCameraOffset != 0 else 0
       l_lane_change_prob = meta.desirePrediction[Desire.laneChangeLeft - 1]
       r_lane_change_prob = meta.desirePrediction[Desire.laneChangeRight - 1]
-      l_lane_close = left_lane_visible and (self.sm['pathPlan'].lPoly[3] < (1.08 - self.dp_camera_offset))
-      r_lane_close = right_lane_visible and (self.sm['pathPlan'].rPoly[3] > -(1.08 + self.dp_camera_offset))
+      l_lane_close = left_lane_visible and (self.sm['pathPlan'].lPoly[3] < (0.8 - self.dp_camera_offset))
+      r_lane_close = right_lane_visible and (self.sm['pathPlan'].rPoly[3] > -(0.8 + self.dp_camera_offset))
 
       CC.hudControl.leftLaneDepart = bool(l_lane_change_prob > LANE_DEPARTURE_THRESHOLD and l_lane_close)
       CC.hudControl.rightLaneDepart = bool(r_lane_change_prob > LANE_DEPARTURE_THRESHOLD and r_lane_close)

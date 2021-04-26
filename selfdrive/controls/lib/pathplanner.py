@@ -9,15 +9,25 @@ from selfdrive.config import Conversions as CV
 from common.params import Params
 import cereal.messaging as messaging
 from cereal import log
-from common.op_params import opParams
+#from common.op_params import opParams
 
 LaneChangeState = log.PathPlan.LaneChangeState
 LaneChangeDirection = log.PathPlan.LaneChangeDirection
 
-LOG_MPC = os.environ.get('LOG_MPC', False)
+LOG_MPC = os.environ.get('LOG_MPC', True)
 
 LANE_CHANGE_SPEED_MIN = 45 * CV.MPH_TO_MS
 LANE_CHANGE_TIME_MAX = 10.
+
+# dp
+
+DP_OFF = 0
+
+DP_ECO = 1
+
+DP_NORMAL = 2
+
+DP_SPORT = 3
 
 DESIRES = {
   LaneChangeDirection.none: {
@@ -51,7 +61,6 @@ def calc_states_after_delay(states, v_ego, steer_angle, curvature_factor, steer_
 class PathPlanner():
   def __init__(self, CP):
     self.LP = LanePlanner()
-
     self.last_cloudlog_t = 0
     self.steer_rate_cost = CP.steerRateCost
 
@@ -70,7 +79,7 @@ class PathPlanner():
     self.dragon_auto_lc_delay = 2.
     self.dp_continuous_auto_lc = False
     self.dp_did_auto_lc = False
-    self.op_params = opParams()
+    #self.op_params = opParams()
 
   def setup_mpc(self):
     self.libmpc = libmpc_py.libmpc
@@ -92,7 +101,7 @@ class PathPlanner():
     v_ego = sm['carState'].vEgo
     angle_steers = sm['carState'].steeringAngle
     active = sm['controlsState'].active
-
+    dp_profile = sm['dragonConf'].dpAccelProfile
     angle_offset = sm['liveParameters'].angleOffset
 
     # Run MPC
@@ -150,7 +159,7 @@ class PathPlanner():
           # we only set timer when in preLaneChange state, dragon_auto_lc_delay delay
           if self.lane_change_state == LaneChangeState.preLaneChange:
             self.dragon_auto_lc_timer = cur_time + sm['dragonConf'].dpAutoLcDelay
-        elif cur_time >= self.dragon_auto_lc_timer:
+        elif cur_time >= (self.dragon_auto_lc_timer - dp_profile):
           # if timer is up, we set torque_applied to True to fake user input
           torque_applied = True
           self.dp_did_auto_lc = True
@@ -214,7 +223,7 @@ class PathPlanner():
     self.LP.update_d_poly(v_ego)
 
     # account for actuation delay
-    self.cur_state = calc_states_after_delay(self.cur_state, v_ego, angle_steers - angle_offset, curvature_factor, VM.sR, self.op_params.get('steer_actuator_delay'))
+    self.cur_state = calc_states_after_delay(self.cur_state, v_ego, angle_steers - angle_offset, curvature_factor, VM.sR, CP.steerActuatorDelay)
 
     v_ego_mpc = max(v_ego, 5.0)  # avoid mpc roughness due to low speed
     self.libmpc.run_mpc(self.cur_state, self.mpc_solution,
@@ -280,3 +289,7 @@ class PathPlanner():
       dat.liveMpc.delta = list(self.mpc_solution[0].delta)
       dat.liveMpc.cost = self.mpc_solution[0].cost
       pm.send('liveMpc', dat)
+
+    msg = messaging.new_message('latControl')
+    msg.latControl.anglelater = math.degrees(list(self.mpc_solution[0].delta)[-1])
+    pm.send('latControl', msg)
