@@ -32,6 +32,12 @@ class RadarInterface(RadarInterfaceBase):
     if self.trigger_msg not in self.updated_messages:
       return None
 
+    rr = self._update(self.updated_messages)
+    self.updated_messages.clear()
+
+    return rr
+
+  def _update(self, updated_messages):
     ret = car.RadarData.new_message()
     errors = []
     if not self.rcp.can_valid:
