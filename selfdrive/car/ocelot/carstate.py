@@ -140,7 +140,7 @@ class CarState(CarStateBase):
       checks.append(("GAS_SENSOR", 50))
 
 
-    return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 0)
+    return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 1)
 
   @staticmethod
   def get_body_can_parser(CP):
@@ -165,4 +165,4 @@ class CarState(CarStateBase):
         signals.append(("BRAKEPEDAL", "ABS",0))
         signals.append(("GEAR","GEAR_PACKET", 0))
 
-    return CANParser(DBC[CP.carFingerprint]['chassis'], signals, checks, 1)
+    return CANParser(DBC[CP.carFingerprint]['chassis'], signals, checks, 0)
