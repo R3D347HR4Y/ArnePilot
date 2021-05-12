@@ -99,7 +99,6 @@ class CarState(CarStateBase):
         put_nonblocking("Speeddn btn detected")
 
     self.currSpeed = ret.vEgo
-    put_nonblocking(self.enabled)
     ret.cruiseState.enabled = self.enabled
     if not travis:
       self.sm.update(0)
