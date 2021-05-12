@@ -77,11 +77,11 @@ class CarState(CarStateBase):
 
     if cp.vl["HIM_CTRLS"]['SET_BTN']:
         self.enabled = True
-        put_nonblocking("Enable btn detected")
+        put_nonblocking("Enable btn detected", self.enabled)
 
     if cp.vl["HIM_CTRLS"]['CANCEL_BTN']:
         self.enabled = False
-        put_nonblocking("Cancel btn detected")
+        put_nonblocking("Cancel btn detected", self.enabled)
 
 
     self.setSpeed = ret.cruiseState.speed
@@ -92,11 +92,11 @@ class CarState(CarStateBase):
     #increase or decrease speed in 5mph increments
     if cp.vl["HIM_CTRLS"]['SPEEDUP_BTN']:
         ret.cruiseState.speed = self.setSpeed + 5*CV.MPH_TO_MS
-        put_nonblocking("Speedup btn detected")
+        put_nonblocking("Speedup btn detected", self.setSpeed)
 
     if cp.vl["HIM_CTRLS"]['SPEEDDN_BTN']:
         ret.cruiseState.speed = self.setSpeed - 5*CV.MPH_TO_MS
-        put_nonblocking("Speeddn btn detected")
+        put_nonblocking("Speeddn btn detected", self.setSpeed)
 
     self.currSpeed = ret.vEgo
     ret.cruiseState.enabled = self.enabled
