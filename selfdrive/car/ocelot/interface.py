@@ -13,9 +13,6 @@ class CarInterface(CarInterfaceBase):
   def compute_gb(accel, speed):
     return float(accel) / 3.0
 
-  @staticmethod
-  def myround(x, base=5):
-    return base * round(x/base)
 
   @staticmethod
   def get_params(candidate, fingerprint=gen_empty_fingerprint(), has_relay=False, car_fw=[]):  # pylint: disable=dangerous-default-value

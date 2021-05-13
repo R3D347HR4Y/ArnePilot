@@ -7,7 +7,6 @@ from selfdrive.config import Conversions as CV
 from selfdrive.car.ocelot.values import CAR, DBC, STEER_THRESHOLD
 import cereal.messaging as messaging
 from common.travis_checker import travis
-import os
 from common.op_params import opParams
 
 op_params = opParams()
