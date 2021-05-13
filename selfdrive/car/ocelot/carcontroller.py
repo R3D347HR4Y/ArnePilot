@@ -120,6 +120,7 @@ class CarController():
     # ui mesg is at 100Hz but we send asap if:
     # - there is something to display
     # - there is something to stop displaying
+    print("Carcontrolling")
 
 
     if (frame % 100 == 0):
