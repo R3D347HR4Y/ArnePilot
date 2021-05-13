@@ -58,8 +58,8 @@ class CarState(CarStateBase):
     ret.standstill = ret.vEgoRaw < 0.001
 
     #Toyota SAS
-    ret.steeringAngle = cp.vl["TOYOTA_STEERING_ANGLE_SENSOR1"]['TOYOTA_STEER_ANGLE'] + cp.vl["TOYOTA_STEERING_ANGLE_SENSOR1"]['TOYOTA_STEER_FRACTION']
-    ret.steeringRate = cp.vl["TOYOTA_STEERING_ANGLE_SENSOR1"]['TOYOTA_STEER_RATE']
+    ret.steeringAngle = -(cp.vl["TOYOTA_STEERING_ANGLE_SENSOR1"]['TOYOTA_STEER_ANGLE'] + cp.vl["TOYOTA_STEERING_ANGLE_SENSOR1"]['TOYOTA_STEER_FRACTION'])
+    ret.steeringRate = -cp.vl["TOYOTA_STEERING_ANGLE_SENSOR1"]['TOYOTA_STEER_RATE']
 
 
     #Steering information from smart standin ECU
@@ -77,10 +77,12 @@ class CarState(CarStateBase):
 
     if cp.vl["HIM_CTRLS"]['SET_BTN']:
         self.enabled = True
+        ret.cruiseState.enabled = True
         print("Enable btn detected")
 
     if cp.vl["HIM_CTRLS"]['CANCEL_BTN']:
         self.enabled = False
+        ret.cruiseState.enabled = False
         print("Cancel btn detected")
 
 
