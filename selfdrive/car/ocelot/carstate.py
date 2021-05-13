@@ -77,12 +77,10 @@ class CarState(CarStateBase):
     if cp.vl["HIM_CTRLS"]['SET_BTN']:
         self.enabled = True
         ret.cruiseState.enabled = True
-        print("Enable btn detected")
 
     if cp.vl["HIM_CTRLS"]['CANCEL_BTN']:
         self.enabled = False
         ret.cruiseState.enabled = False
-        print("Cancel btn detected")
 
 
     self.setSpeed = ret.cruiseState.speed
@@ -93,14 +91,13 @@ class CarState(CarStateBase):
     #increase or decrease speed in 5mph increments
     if cp.vl["HIM_CTRLS"]['SPEEDUP_BTN']:
         ret.cruiseState.speed = self.setSpeed + 5*CV.MPH_TO_MS
-        print("Speedup btn detected")
 
     if cp.vl["HIM_CTRLS"]['SPEEDDN_BTN']:
         ret.cruiseState.speed = self.setSpeed - 5*CV.MPH_TO_MS
-        print("Speeddn btn detected")
 
     self.currSpeed = ret.vEgo
     ret.cruiseState.enabled = self.enabled
+    ret.cruiseState.speed = 5
     if not travis:
       self.sm.update(0)
       self.smartspeed = self.sm['liveMapData'].speedLimit
