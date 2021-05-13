@@ -55,6 +55,7 @@ class CarInterface(CarInterfaceBase):
     # In TSS2 cars the camera does long control
     ret.enableGasInterceptor = 0x201 in fingerprint[0]
     # if the smartDSU is detected, openpilot can send ACC_CMD (and the smartDSU will block it from the DSU) or not (the DSU is "connected")
+    ret.enableCamera = True
     ret.openpilotLongitudinalControl = True
     cloudlog.warning("ECU Gas Interceptor: %r", ret.enableGasInterceptor)
 
@@ -95,7 +96,8 @@ class CarInterface(CarInterfaceBase):
     # dp
     self.dragonconf = dragonconf
     ret.cruiseState.enabled = common_interface_atl(ret, dragonconf.dpAtl)
-    ret.enableCamera = True
+
+
     ret.canValid = self.cp.can_valid and self.cp_body.can_valid
     ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False
     ret.engineRPM = self.CS.engineRPM
