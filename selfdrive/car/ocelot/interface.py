@@ -63,7 +63,7 @@ class CarInterface(CarInterfaceBase):
     ret.minEnableSpeed = -1.
 
 
-
+    stop_and_go = True
     ret.longitudinalTuning.deadzoneBP = [0., 9.]
     ret.longitudinalTuning.deadzoneV = [0., .15]
     ret.longitudinalTuning.kpBP = [0., 5., 35.]

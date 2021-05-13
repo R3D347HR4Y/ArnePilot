@@ -94,7 +94,7 @@ class CarInterfaceBase():
   def apply(self, c):
     raise NotImplementedError
 
-  def create_common_events(self, cs_out, extra_gears=[], gas_resume_speed=-1, pcm_enable=True):  # pylint: disable=dangerous-default-value
+  def create_common_events(self, cs_out, extra_gears=[], gas_resume_speed=-1, pcm_enable=False):  # pylint: disable=dangerous-default-value
     events = Events()
 
     if cs_out.doorOpen:
