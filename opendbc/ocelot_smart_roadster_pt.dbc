@@ -84,7 +84,8 @@ BO_ 144 ABS: 8 SMART
  SG_ VEHICLESPEED : 45|6@0- (1,0) [0|0] "mph" EON
 
 BO_ 400 GEAR_PACKET: 8 SMART
- SG_ GEAR : 0|8@1+ (1,0) [0|0] "" EON
+ SG_ GEAR : 2|5@1+ (1,0) [0|0] "" EON
+ SG_ RPM : 23|7@0+ (50,0) [0|0] "" EON
 
 BO_ 520 SMART_ROADSTER_MESSAGE1: 8 SMART
 
@@ -107,4 +108,4 @@ VAL_ 544 RIGHT_SIGNAL 0 "Off" 1 "On" ;
 VAL_ 544 SIDELIGHTS 0 "Off" 1 "On" ;
 VAL_ 144 ESP_STATUS 0 "On" 1 "Off" ;
 VAL_ 144 BRAKEPEDAL 0 "Not_pressed" 1 "Pressed" ;
-VAL_ 400 GEAR 8 "N" 4 "R" 76 "D" 16 "S" ;
+VAL_ 400 GEAR 0 "P" 2 "N" 1 "R" 3 "D" 4 "S" ;

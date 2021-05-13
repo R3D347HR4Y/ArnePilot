@@ -21,6 +21,7 @@ class CarState(CarStateBase):
     self.enabled = False
     self.oldEnabled = False
     self.brakeUnavailable = True
+    self.engineRPM = 0
     if not travis:
       self.pm = messaging.PubMaster(['liveTrafficData'])
       self.sm = messaging.SubMaster(['liveMapData'])
@@ -34,13 +35,14 @@ class CarState(CarStateBase):
         ret.seatbeltUnlatched = False
         ret.leftBlinker = bool(cp_body.vl["BODYCONTROL"]['LEFT_SIGNAL'])
         ret.rightBlinker = bool(cp_body.vl["BODYCONTROL"]['RIGHT_SIGNAL'])
-        ret.espDisabled = False #bool(cp_body.vl["ABS"]['ESP_STATUS'])
+        ret.espDisabled = bool(cp_body.vl["ABS"]['ESP_STATUS'])
         ret.wheelSpeeds.fl = cp_body.vl["SMARTROADSTERWHEELSPEEDS"]['WHEELSPEED_FL'] * CV.MPH_TO_MS
         ret.wheelSpeeds.fr = cp_body.vl["SMARTROADSTERWHEELSPEEDS"]['WHEELSPEED_FR'] * CV.MPH_TO_MS
         ret.wheelSpeeds.rl = cp_body.vl["SMARTROADSTERWHEELSPEEDS"]['WHEELSPEED_RL'] * CV.MPH_TO_MS
         ret.wheelSpeeds.rr = cp_body.vl["SMARTROADSTERWHEELSPEEDS"]['WHEELSPEED_RR'] * CV.MPH_TO_MS
         can_gear = int(cp_body.vl["GEAR_PACKET"]['GEAR'])
         ret.gearShifter = self.parse_gear_shifter(self.shifter_values.get(can_gear, None))
+        self.engineRPM = cp_body.vl["GEAR_PACKET"]["RPM"]
 
     #Ibooster data
     ret.brakePressed = bool(cp.vl["BRAKE_STATUS"]['DRIVER_BRAKE_APPLIED'])
@@ -167,5 +169,6 @@ class CarState(CarStateBase):
         signals.append(("WHEELSPEED_RR", "SMARTROADSTERWHEELSPEEDS",0))
         signals.append(("BRAKEPEDAL", "ABS",0))
         signals.append(("GEAR","GEAR_PACKET", 0))
+        signals.append(("RPM","GEAR_PACKET",0))
 
     return CANParser(DBC[CP.carFingerprint]['chassis'], signals, checks, 0)
