@@ -39,7 +39,7 @@ class CarState(CarStateBase):
         ret.wheelSpeeds.fr = cp_body.vl["SMARTROADSTERWHEELSPEEDS"]['WHEELSPEED_FR'] * CV.MPH_TO_MS
         ret.wheelSpeeds.rl = cp_body.vl["SMARTROADSTERWHEELSPEEDS"]['WHEELSPEED_RL'] * CV.MPH_TO_MS
         ret.wheelSpeeds.rr = cp_body.vl["SMARTROADSTERWHEELSPEEDS"]['WHEELSPEED_RR'] * CV.MPH_TO_MS
-        can_gear = 0 #int(cp_body.vl["GEAR_PACKET"]['GEAR'])
+        can_gear = int(cp_body.vl["GEAR_PACKET"]['GEAR'])
         ret.gearShifter = self.parse_gear_shifter(self.shifter_values.get(can_gear, None))
 
     #Ibooster data
