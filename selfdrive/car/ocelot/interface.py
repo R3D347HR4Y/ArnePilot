@@ -53,7 +53,7 @@ class CarInterface(CarInterfaceBase):
 
     # Detect smartDSU, which intercepts ACC_CMD from the DSU allowing openpilot to send it
     # In TSS2 cars the camera does long control
-    ret.enableGasInterceptor = 0x201 in fingerprint[0]
+    ret.enableGasInterceptor = True
     # if the smartDSU is detected, openpilot can send ACC_CMD (and the smartDSU will block it from the DSU) or not (the DSU is "connected")
     ret.enableCamera = True
     ret.openpilotLongitudinalControl = True
