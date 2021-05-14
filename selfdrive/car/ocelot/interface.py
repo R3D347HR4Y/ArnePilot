@@ -21,7 +21,7 @@ class CarInterface(CarInterfaceBase):
     ret.carName = "ocelot"
     # dp
     ret.lateralTuning.init('pid')
-    ret.safetyModel = car.CarParams.SafetyModel.ocelot
+    ret.safetyModel = car.CarParams.SafetyModel.allOutput
 
     ret.steerActuatorDelay = 0.12  # Default delay, Prius has larger delay
     ret.steerLimitTimer = 0.4
