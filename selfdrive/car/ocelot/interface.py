@@ -55,6 +55,7 @@ class CarInterface(CarInterfaceBase):
     # In TSS2 cars the camera does long control
     ret.enableGasInterceptor = True
     # if the smartDSU is detected, openpilot can send ACC_CMD (and the smartDSU will block it from the DSU) or not (the DSU is "connected")
+    ret.enableDsu = True
     ret.enableCamera = True
     ret.openpilotLongitudinalControl = True
     cloudlog.warning("ECU Gas Interceptor: %r", ret.enableGasInterceptor)
