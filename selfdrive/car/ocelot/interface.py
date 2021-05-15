@@ -97,6 +97,7 @@ class CarInterface(CarInterfaceBase):
 
   # returns a car.CarState
   def update(self, c, can_strings, dragonconf):
+    buttonEvents = []
     # ******************* do can recv *******************
     self.cp.update_strings(can_strings)
     self.cp_body.update_strings(can_strings)
