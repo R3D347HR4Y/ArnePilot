@@ -122,7 +122,7 @@ class CarController():
     # on consecutive messages
     if CS.out.vEgo = 0:
         apply_brakes = 0.25
-    else
+    else:
         apply_brakes = actuators.brake
 
     can_sends.append(create_steer_command(self.packer, apply_steer, apply_steer_req, frame))
