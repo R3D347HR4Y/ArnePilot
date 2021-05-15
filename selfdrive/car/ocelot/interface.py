@@ -102,6 +102,10 @@ class CarInterface(CarInterfaceBase):
     ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False
     ret.engineRPM = self.CS.engineRPM
 
+    longControlDisabled = False
+    ret.cruiseState.enabled = self.CS.out.cruiseState.enabled
+
+
     # events
     events = self.create_common_events(ret)
 
