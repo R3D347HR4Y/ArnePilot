@@ -17,7 +17,6 @@ class CarState(CarStateBase):
     can_define = CANDefine(DBC[CP.carFingerprint]['chassis'])
     self.shifter_values = can_define.dv["GEAR_PACKET"]['GEAR']
     self.setSpeed = 0
-    self.currSpeed = 0
     self.enabled = False
     self.oldEnabled = False
     self.brakeUnavailable = True
@@ -97,8 +96,6 @@ class CarState(CarStateBase):
     if cp.vl["HIM_CTRLS"]['SPEEDDN_BTN']:
         ret.cruiseState.speed = self.setSpeed - 5*CV.MPH_TO_MS
 
-    self.currSpeed = ret.vEgo
-    ret.cruiseState.enabled = self.enabled
     ret.cruiseState.speed = 5
     if not travis:
       self.sm.update(0)

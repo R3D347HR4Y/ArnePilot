@@ -103,7 +103,6 @@ class CarInterface(CarInterfaceBase):
     ret.engineRPM = self.CS.engineRPM
 
     longControlDisabled = False
-    ret.cruiseState.enabled = self.CS.out.cruiseState.enabled
 
 
     # events
@@ -119,7 +118,7 @@ class CarInterface(CarInterfaceBase):
   # to be called @ 100hz
   def apply(self, c):
 
-    can_sends = self.CC.update(True, self.CS, self.frame,
+    can_sends = self.CC.update(c.enabled, self.CS, self.frame,
                                c.actuators, c.cruiseControl.cancel,
                                c.hudControl.visualAlert, c.hudControl.leftLaneVisible,
                                c.hudControl.rightLaneVisible, c.hudControl.leadVisible,
