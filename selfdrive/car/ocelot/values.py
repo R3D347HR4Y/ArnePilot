@@ -12,11 +12,19 @@ class SteerLimitParams:
   STEER_DELTA_DOWN = 70         # torque decrease per refresh
   STEER_DRIVER_ALLOWANCE = 60   # allowed driver torque before start limiting
   STEER_DRIVER_MULTIPLIER = 10  # weight driver torque heavily
-  STEER_DRIVER_FACTOR = 1     
+  STEER_DRIVER_FACTOR = 1
 
 class CAR:
   SMART_ROADSTER_COUPE = "SMART ROADSTER COUPE 2003-2006"
 
+BUTTON_STATES = {
+  "accelCruise": False,
+  "decelCruise": False,
+  "cancel": False,
+  "setCruise": False,
+  "resumeCruise": False,
+  "gapAdjustCruise": False
+}
 
 # addr: (ecu, cars, bus, 1/freq*100, vl)
 STATIC_MSGS = [

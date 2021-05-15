@@ -13,6 +13,16 @@ class CarInterface(CarInterfaceBase):
   def compute_gb(accel, speed):
     return float(accel) / 3.0
 
+  def __init__(self, CP, CarController, CarState):
+    super().__init__(CP, CarController, CarState)
+
+    self.displayMetricUnitsPrev = None
+    self.gas_pressed_prev = False
+    self.brake_pressed_prev = False
+    self.cruise_enabled_prev = False
+    self.low_speed_alert = False
+    self.buttonStatesPrev = BUTTON_STATES.copy()
+
 
   @staticmethod
   def get_params(candidate, fingerprint=gen_empty_fingerprint(), has_relay=False, car_fw=[]):  # pylint: disable=dangerous-default-value
@@ -102,6 +112,13 @@ class CarInterface(CarInterfaceBase):
     ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False
     ret.engineRPM = self.CS.engineRPM
 
+    for button in self.CS.buttonStates:
+      if self.CS.buttonStates[button] != self.buttonStatesPrev[button]:
+        be = car.CarState.ButtonEvent.new_message()
+        be.type = button
+        be.pressed = self.CS.buttonStates[button]
+        buttonEvents.append(be)
+
 
 
     # events
@@ -109,6 +126,13 @@ class CarInterface(CarInterfaceBase):
 
 
     ret.events = events.to_msg()
+    ret.buttonEvents = buttonEvents
+
+    # update previous car states
+    self.gas_pressed_prev = ret.gasPressed
+    self.brake_pressed_prev = ret.brakePressed
+    self.cruise_enabled_prev = ret.cruiseState.enabled
+    self.buttonStatesPrev = self.CS.buttonStates.copy()
 
     self.CS.out = ret.as_reader()
     return self.CS.out

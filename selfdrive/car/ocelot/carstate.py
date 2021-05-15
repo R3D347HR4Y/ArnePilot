@@ -24,6 +24,7 @@ class CarState(CarStateBase):
     if not travis:
       self.pm = messaging.PubMaster(['liveTrafficData'])
       self.sm = messaging.SubMaster(['liveMapData'])
+    self.buttonStates = BUTTON_STATES.copy()
 
   def update(self, cp, cp_body):
     ret = car.CarState.new_message()
@@ -74,15 +75,12 @@ class CarState(CarStateBase):
 
     #Logic for OP to manage whether it's enabled or not as controls board only sends button inputs
     self.oldEnabled = self.enabled
+    self.enabled = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
 
-    if cp.vl["HIM_CTRLS"]['SET_BTN']:
-        self.enabled = True
-        ret.cruiseState.enabled = True
-
-    if cp.vl["HIM_CTRLS"]['CANCEL_BTN']:
-        self.enabled = False
-        ret.cruiseState.enabled = False
-
+    self.buttonStates["accelCruise"] = bool(cp.vl["HIM_CTRLS"]['SPEEDUP_BTN'])
+    self.buttonStates["decelCruise"] = bool(cp.vl["HIM_CTRLS"]['SPEEDDN_BTN'])
+    self.buttonStates["cancel"] = bool(cp.vl["HIM_CTRLS"]['CANCEL_BTN'])
+    self.buttonStates["setCruise"] = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
 
     self.setSpeed = ret.cruiseState.speed
     #if enabled from off (rising edge) set the speed to the current speed rounded to 5mph
@@ -90,11 +88,6 @@ class CarState(CarStateBase):
         ret.cruiseState.speed = (int_rnd((ret.vEgo * CV.MS_TO_MPH)/5)*5) * CV.MPH_TO_MS
 
     #increase or decrease speed in 5mph increments
-    if cp.vl["HIM_CTRLS"]['SPEEDUP_BTN']:
-        ret.cruiseState.speed = self.setSpeed + 5*CV.MPH_TO_MS
-
-    if cp.vl["HIM_CTRLS"]['SPEEDDN_BTN']:
-        ret.cruiseState.speed = self.setSpeed - 5*CV.MPH_TO_MS
 
     ret.cruiseState.speed = 5
     if not travis:
