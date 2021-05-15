@@ -1,5 +1,5 @@
 from cereal import car
-from common.numpy_fast import mean
+from common.numpy_fast import mean, int_rnd
 from opendbc.can.can_define import CANDefine
 from selfdrive.car.interfaces import CarStateBase
 from opendbc.can.parser import CANParser
@@ -17,6 +17,7 @@ class CarState(CarStateBase):
     can_define = CANDefine(DBC[CP.carFingerprint]['chassis'])
     self.shifter_values = can_define.dv["GEAR_PACKET"]['GEAR']
     self.brakeUnavailable = True
+    self.oldEnabled = False
     self.engineRPM = 0
     if not travis:
       self.pm = messaging.PubMaster(['liveTrafficData'])
@@ -66,17 +67,24 @@ class CarState(CarStateBase):
     ret.steeringPressed = abs(ret.steeringTorque) > STEER_THRESHOLD
     ret.steerError = bool(cp.vl["STEERING_STATUS"]['STEERING_OK'] == 0)
 
+
+    if (cp.vl["HIM_CTRLS"]['CANCEL_BTN'] or not bool(cp.vl["CURRENT_STATE"]['ENABLED'])):
+        ret.cruiseState.enabled = False
     if cp.vl["HIM_CTRLS"]['SET_BTN']:
         ret.cruiseState.enabled = True
-    if cp.vl["HIM_CTRLS"]['CANCEL_BTN']:
-        ret.cruiseState.enabled = False
 
     ret.cruiseState.available = True
     ret.cruiseState.standstill = False
     ret.cruiseState.nonAdaptive = False
 
     #Logic for OP to manage whether it's enabled or not as controls board only sends button inputs
+    if ret.cruiseState.enabled and not(self.oldEnabled):
+        ret.cruiseState.speed = (int_rnd((ret.vEgo * CV.MS_TO_MPH)/5)*5) * CV.MPH_TO_MS
 
+    if cp.vl["HIM_CTRLS"]['SPEEDUP_BTN']:
+        ret.cruiseState.speed = ret.cruiseState.speed + 5*CV.MPH_TO_MS
+    if cp.vl["HIM_CTRLS"]['SPEEDDN_BTN']:
+        ret.cruiseState.speed = ret.cruiseState.speed - 5*CV.MPH_TO_MS
 
     self.buttonStates["accelCruise"] = bool(cp.vl["HIM_CTRLS"]['SPEEDUP_BTN'])
     self.buttonStates["decelCruise"] = bool(cp.vl["HIM_CTRLS"]['SPEEDDN_BTN'])
@@ -90,6 +98,7 @@ class CarState(CarStateBase):
     ret.stockAeb = False
     ret.leftBlindspot = False
     ret.rightBlindspot = False
+    self.oldEnabled = ret.cruiseState.enabled
 
 
     return ret
