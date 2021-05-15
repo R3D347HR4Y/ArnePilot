@@ -112,12 +112,17 @@ class CarInterface(CarInterfaceBase):
     ret.engineRPM = self.CS.engineRPM
 
     for button in self.CS.buttonStates:
-      be = car.CarState.ButtonEvent.new_message()
-      be.type = button
-      be.pressed = self.CS.buttonStates[button]
-      buttonEvents.append(be)
-    print(self.CS.buttonStates)
+      if self.CS.buttonStates[button] != self.buttonStatesPrev[button]:
+        be = car.CarState.ButtonEvent.new_message()
+        be.type = button
+        be.pressed = self.CS.buttonStates[button]
+        buttonEvents.append(be)
 
+    if not ret.cruiseState.enabled:
+      events.add(EventName.pcmDisable)
+    # Attempt OP engagement only on rising edge of stock ACC engagement.
+    elif not self.cruise_enabled_prev:
+      events.add(EventName.pcmEnable)
 
 
     # events
