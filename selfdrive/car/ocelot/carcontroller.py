@@ -120,7 +120,7 @@ class CarController():
     # toyota can trace shows this message at 42Hz, with counter adding alternatively 1 and 2;
     # sending it at 100Hz seem to allow a higher rate limit, as the rate limit seems imposed
     # on consecutive messages
-    if(CS.out.vEgo = 0):
+    if CS.out.vEgo = 0:
         apply_brakes = 0.25
     else
         apply_brakes = actuators.brake
