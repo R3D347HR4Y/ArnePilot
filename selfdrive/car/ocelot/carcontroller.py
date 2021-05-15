@@ -121,9 +121,9 @@ class CarController():
     # sending it at 100Hz seem to allow a higher rate limit, as the rate limit seems imposed
     # on consecutive messages
     if CS.out.vEgo = 0:
-        apply_brakes = 0.25
+      apply_brakes = 0.25
     else:
-        apply_brakes = actuators.brake
+      apply_brakes = actuators.brake
 
     can_sends.append(create_steer_command(self.packer, apply_steer, apply_steer_req, frame))
     can_sends.append(create_ibst_command(self.packer, enabled, apply_brakes, frame))
