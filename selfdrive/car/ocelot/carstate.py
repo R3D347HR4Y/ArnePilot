@@ -78,13 +78,13 @@ class CarState(CarStateBase):
     ret.cruiseState.nonAdaptive = False
 
     #Logic for OP to manage whether it's enabled or not as controls board only sends button inputs
-    if ret.cruiseState.enabled and not(self.oldEnabled):
-        ret.cruiseState.speed = (int_rnd((ret.vEgo * CV.MS_TO_MPH)/5)*5) * CV.MPH_TO_MS
-
-    if cp.vl["HIM_CTRLS"]['SPEEDUP_BTN']:
-        ret.cruiseState.speed = ret.cruiseState.speed + 5*CV.MPH_TO_MS
-    if cp.vl["HIM_CTRLS"]['SPEEDDN_BTN']:
-        ret.cruiseState.speed = ret.cruiseState.speed - 5*CV.MPH_TO_MS
+    #if ret.cruiseState.enabled and not(self.oldEnabled):
+    #    ret.cruiseState.speed = (int_rnd((ret.vEgo * CV.MS_TO_MPH)/5)*5) * CV.MPH_TO_MS
+    ret.cruiseState.speed = 5
+    #if cp.vl["HIM_CTRLS"]['SPEEDUP_BTN']:
+    #    ret.cruiseState.speed = ret.cruiseState.speed + 5*CV.MPH_TO_MS
+    #if cp.vl["HIM_CTRLS"]['SPEEDDN_BTN']:
+    #    ret.cruiseState.speed = ret.cruiseState.speed - 5*CV.MPH_TO_MS
 
     self.buttonStates["accelCruise"] = bool(cp.vl["HIM_CTRLS"]['SPEEDUP_BTN'])
     self.buttonStates["decelCruise"] = bool(cp.vl["HIM_CTRLS"]['SPEEDDN_BTN'])
