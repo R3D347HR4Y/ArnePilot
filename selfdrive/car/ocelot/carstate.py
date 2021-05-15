@@ -86,7 +86,7 @@ class CarState(CarStateBase):
     ret.stockAeb = False
     ret.leftBlindspot = False
     ret.rightBlindspot = False
-
+    ret.cruiseState.speed = 5
 
 
     return ret
