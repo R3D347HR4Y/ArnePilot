@@ -133,7 +133,7 @@ class CarController():
     # ui mesg is at 100Hz but we send asap if:
     # - there is something to display
     # - there is something to stop displaying
-
+    CS.out.cruiseState.enabled = enabled
 
     if (frame % 100 == 0):
       can_sends.append(create_msg_command(self.packer, enabled, CS.out.cruiseState.speed * CV.MS_TO_MPH, CS.out.vEgo * CV.MS_TO_MPH))
