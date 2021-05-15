@@ -16,11 +16,9 @@ class CarInterface(CarInterfaceBase):
   def __init__(self, CP, CarController, CarState):
     super().__init__(CP, CarController, CarState)
 
-    self.displayMetricUnitsPrev = None
     self.gas_pressed_prev = False
     self.brake_pressed_prev = False
     self.cruise_enabled_prev = False
-    self.low_speed_alert = False
     self.buttonStatesPrev = BUTTON_STATES.copy()
 
 

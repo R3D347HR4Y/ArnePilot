@@ -16,9 +16,6 @@ class CarState(CarStateBase):
     super().__init__(CP)
     can_define = CANDefine(DBC[CP.carFingerprint]['chassis'])
     self.shifter_values = can_define.dv["GEAR_PACKET"]['GEAR']
-    self.setSpeed = 0
-    self.enabled = False
-    self.oldEnabled = False
     self.brakeUnavailable = True
     self.engineRPM = 0
     if not travis:
@@ -69,27 +66,19 @@ class CarState(CarStateBase):
     ret.steeringPressed = abs(ret.steeringTorque) > STEER_THRESHOLD
     ret.steerError = bool(cp.vl["STEERING_STATUS"]['STEERING_OK'] == 0)
 
+    ret.cruiseState.enabled = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
     ret.cruiseState.available = True
     ret.cruiseState.standstill = False
     ret.cruiseState.nonAdaptive = False
 
     #Logic for OP to manage whether it's enabled or not as controls board only sends button inputs
-    self.oldEnabled = self.enabled
-    self.enabled = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
+
 
     self.buttonStates["accelCruise"] = bool(cp.vl["HIM_CTRLS"]['SPEEDUP_BTN'])
     self.buttonStates["decelCruise"] = bool(cp.vl["HIM_CTRLS"]['SPEEDDN_BTN'])
     self.buttonStates["cancel"] = bool(cp.vl["HIM_CTRLS"]['CANCEL_BTN'])
     self.buttonStates["setCruise"] = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
 
-    self.setSpeed = ret.cruiseState.speed
-    #if enabled from off (rising edge) set the speed to the current speed rounded to 5mph
-    if self.enabled and not(self.oldEnabled):
-        ret.cruiseState.speed = (int_rnd((ret.vEgo * CV.MS_TO_MPH)/5)*5) * CV.MPH_TO_MS
-
-    #increase or decrease speed in 5mph increments
-
-    ret.cruiseState.speed = 5
     if not travis:
       self.sm.update(0)
       self.smartspeed = self.sm['liveMapData'].speedLimit
