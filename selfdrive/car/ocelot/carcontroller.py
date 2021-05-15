@@ -124,10 +124,7 @@ class CarController():
     can_sends.append(create_steer_command(self.packer, apply_steer, apply_steer_req, frame))
     can_sends.append(create_ibst_command(self.packer, enabled, actuators.brake, frame))
 
-    if (frame % 2 == 0) and (CS.CP.enableGasInterceptor):
-      # send exactly zero if apply_gas is zero. Interceptor will send the max between read value and apply_gas.
-      # This prevents unexpected pedal range rescaling
-      can_sends.append(create_pedal_command(self.packer, apply_gas, frame//2))
+    can_sends.append(create_pedal_command(self.packer, apply_gas, frame))
 
     # ui mesg is at 100Hz but we send asap if:
     # - there is something to display

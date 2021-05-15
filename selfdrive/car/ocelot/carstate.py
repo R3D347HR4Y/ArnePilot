@@ -1,5 +1,5 @@
 from cereal import car
-from common.numpy_fast import mean, int_rnd
+from common.numpy_fast import mean
 from opendbc.can.can_define import CANDefine
 from selfdrive.car.interfaces import CarStateBase
 from opendbc.can.parser import CANParser
@@ -66,7 +66,11 @@ class CarState(CarStateBase):
     ret.steeringPressed = abs(ret.steeringTorque) > STEER_THRESHOLD
     ret.steerError = bool(cp.vl["STEERING_STATUS"]['STEERING_OK'] == 0)
 
-    ret.cruiseState.enabled = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
+    if cp.vl["HIM_CTRLS"]['SET_BTN']:
+        ret.cruiseState.enabled = True
+    if cp.vl["HIM_CTRLS"]['CANCEL_BTN']:
+        ret.cruiseState.enabled = False
+
     ret.cruiseState.available = True
     ret.cruiseState.standstill = False
     ret.cruiseState.nonAdaptive = False
@@ -86,7 +90,6 @@ class CarState(CarStateBase):
     ret.stockAeb = False
     ret.leftBlindspot = False
     ret.rightBlindspot = False
-    ret.cruiseState.speed = 5
 
 
     return ret
@@ -112,6 +115,7 @@ class CarState(CarStateBase):
       ("STEERING_TORQUE_DRIVER", "STEERING_STATUS", 0),
       ("STEERING_TORQUE_EPS", "STEERING_STATUS", 0),
       ("STEERING_OK", "STEERING_STATUS", 0),
+      ("ENABLED", "CURRENT_STATE", 0)
     ]
 
     checks = [
