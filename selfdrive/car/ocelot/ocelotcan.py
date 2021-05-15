@@ -6,7 +6,7 @@ def create_steer_command(packer, steer, steer_req, raw_cnt):
     "REQUESTED_STEER_TORQUE": steer * 255,
     "COUNTER": raw_cnt,
   }
-  return packer.make_can_msg("STEERING_COMMAND", 0, values)
+  return packer.make_can_msg("STEERING_COMMAND", 1, values)
 
 def create_pedal_command(packer, gas_amount, raw_cnt):
   # Common gas pedal msg generator
@@ -21,7 +21,7 @@ def create_pedal_command(packer, gas_amount, raw_cnt):
     values["GAS_COMMAND"] = gas_amount * 255.
     values["GAS_COMMAND2"] = gas_amount * 255.
 
-  return packer.make_can_msg("GAS_COMMAND", 0, values)
+  return packer.make_can_msg("GAS_COMMAND", 1, values)
 
 def create_ibst_command(packer, enabled, brake, raw_cnt):
   values = {
@@ -31,7 +31,7 @@ def create_ibst_command(packer, enabled, brake, raw_cnt):
     "COUNTER" : raw_cnt,
   }
 
-  return packer.make_can_msg("BRAKE_COMMAND", 0, values)
+  return packer.make_can_msg("BRAKE_COMMAND", 1, values)
 
 def create_msg_command(packer, enabled, setspeed, currspeed):
   values = {
@@ -39,4 +39,4 @@ def create_msg_command(packer, enabled, setspeed, currspeed):
     "SET_SPEED" : setspeed,
     "CURRENT_SPEED" : currspeed,
   }
-  return packer.make_can_msg("CURRENT_STATE", 0, values)
+  return packer.make_can_msg("CURRENT_STATE", 1, values)
