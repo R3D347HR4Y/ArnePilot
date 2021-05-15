@@ -118,16 +118,16 @@ class CarInterface(CarInterfaceBase):
         be.pressed = self.CS.buttonStates[button]
         buttonEvents.append(be)
 
+
+
+
+    # events
+    events = self.create_common_events(ret)
     if not ret.cruiseState.enabled:
       events.add(EventName.pcmDisable)
     # Attempt OP engagement only on rising edge of stock ACC engagement.
     elif not self.cruise_enabled_prev:
       events.add(EventName.pcmEnable)
-
-
-    # events
-    events = self.create_common_events(ret)
-
 
     ret.events = events.to_msg()
     ret.buttonEvents = buttonEvents
