@@ -116,6 +116,7 @@ class CarInterface(CarInterfaceBase):
       be.type = button
       be.pressed = self.CS.buttonStates[button]
       buttonEvents.append(be)
+    print(self.CS.buttonStates)
 
 
 
