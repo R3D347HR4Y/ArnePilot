@@ -104,6 +104,9 @@ class CarState(CarStateBase):
       self.sm.update(0)
       self.smartspeed = self.sm['liveMapData'].speedLimit
 
+    ret.stockAeb = False
+    ret.leftBlindspot = False
+    ret.rightBlindspot = False
 
 
 

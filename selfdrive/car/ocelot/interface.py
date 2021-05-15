@@ -40,7 +40,7 @@ class CarInterface(CarInterfaceBase):
         ret.centerToFront = ret.wheelbase * 0.44
 
 
-
+    ret = common_interface_get_params_lqr(ret)
 
     # TODO: get actual value, for now starting with reasonable value for
     # civic and scaling by mass and wheelbase
@@ -82,7 +82,6 @@ class CarInterface(CarInterfaceBase):
       ret.longitudinalTuning.kiV = [0.54, 0.36]
 
     # dp
-    ret = common_interface_get_params_lqr(ret)
 
     return ret
 
