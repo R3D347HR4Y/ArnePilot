@@ -71,6 +71,8 @@ class CarState(CarStateBase):
         ret.cruiseState.enabled = False
     elif bool(cp.vl["HIM_CTRLS"]['SET_BTN']):
         ret.cruiseState.enabled = True
+        if ret.standstill:
+            ret.cruiseState.speed = 5*CV.MPH_TO_MS
 
     ret.cruiseState.available = True
     ret.cruiseState.standstill = False
