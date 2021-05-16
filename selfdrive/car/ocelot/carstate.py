@@ -87,7 +87,7 @@ class CarState(CarStateBase):
         print("if1")
         ret.cruiseState.enabled = False
     # Attempt OP engagement only on rising edge of stock ACC engagement.
-    elif not bool(self.oldButtonStates["setCruise"]):
+    if not bool(self.oldButtonStates["setCruise"]):
         print("if2")
         if bool(self.buttonStates["setCruise"]):
             print("if3")
