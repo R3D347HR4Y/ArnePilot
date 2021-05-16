@@ -83,7 +83,7 @@ class CarState(CarStateBase):
     #if not enabled:
     #    ret.cruiseState.enabled = False
 
-    if self.buttonStates["setCruise"] and not self.oldButtonStates["setCruise"]:
+    if self.buttonStates["setCruise"] != self.oldButtonStates["setCruise"]:
         print("enable")
         ret.cruiseState.enabled = not ret.cruiseState.enabled
     #ret.cruiseState.enabled = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
