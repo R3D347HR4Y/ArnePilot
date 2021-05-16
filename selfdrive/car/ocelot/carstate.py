@@ -80,9 +80,9 @@ class CarState(CarStateBase):
 
     #Logic for OP to manage whether it's enabled or not as controls board only sends button inputs
 
-    if self.buttonStates["setCruise"] and not self.oldButtonStates["setCruise"]:
-        ret.cruiseState.enabled = not ret.cruiseState.enabled
-    #ret.cruiseState.enabled = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
+    #if self.buttonStates["setCruise"] and not self.oldButtonStates["setCruise"]:
+    #    ret.cruiseState.enabled = not ret.cruiseState.enabled
+    ret.cruiseState.enabled = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
 
     if ret.cruiseState.enabled and not self.oldEnabled:
         ret.cruiseState.speed = ret.vEgo
