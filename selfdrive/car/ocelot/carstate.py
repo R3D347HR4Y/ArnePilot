@@ -84,10 +84,7 @@ class CarState(CarStateBase):
     #    ret.cruiseState.enabled = not ret.cruiseState.enabled
     ret.cruiseState.enabled = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
 
-    if not ret.cruiseState.enabled:
-      ret.cruiseState.speed = 5
-      if ret.standstill:
-        ret.cruiseState.speed = 10*CV.MPH_TO_MS
+    ret.cruiseState.speed = 10*CV.MPH_TO_MS
 
     if self.buttonStates["accelCruise"] and not self.oldButtonStates["accelCruise"]:
       ret.cruiseState.speed = ret.cruiseState.speed + 5*CV.MPH_TO_MS
