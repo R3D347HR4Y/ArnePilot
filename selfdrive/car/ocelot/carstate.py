@@ -24,7 +24,7 @@ class CarState(CarStateBase):
       self.sm = messaging.SubMaster(['liveMapData'])
     self.buttonStates = BUTTON_STATES.copy()
 
-  def update(self, cp, cp_body):
+  def update(self, cp, cp_body, enabled):
     ret = car.CarState.new_message()
 
     #Car specific information
@@ -67,9 +67,6 @@ class CarState(CarStateBase):
     ret.steeringPressed = abs(ret.steeringTorque) > STEER_THRESHOLD
     ret.steerError = bool(cp.vl["STEERING_STATUS"]['STEERING_OK'] == 0)
 
-
-    if (cp.vl["HIM_CTRLS"]['CANCEL_BTN'] or not bool(cp.vl["CURRENT_STATE"]['ENABLED'])):
-        ret.cruiseState.enabled = False
     if cp.vl["HIM_CTRLS"]['SET_BTN']:
         ret.cruiseState.enabled = not ret.cruiseState.enabled
 

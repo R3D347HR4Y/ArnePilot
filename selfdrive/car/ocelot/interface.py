@@ -101,7 +101,7 @@ class CarInterface(CarInterfaceBase):
     self.cp.update_strings(can_strings)
     self.cp_body.update_strings(can_strings)
 
-    ret = self.CS.update(self.cp, self.cp_body)
+    ret = self.CS.update(self.cp, self.cp_body, c.enabled)
 
     # dp
     self.dragonconf = dragonconf
