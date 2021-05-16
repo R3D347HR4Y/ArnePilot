@@ -85,7 +85,7 @@ class CarState(CarStateBase):
     ret.cruiseState.enabled = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
 
     if ret.cruiseState.enabled and not self.oldEnabled:
-        ret.cruiseState.speed = ret.vEgo
+        ret.cruiseState.speed = 5
         if ret.standstill:
             ret.cruiseState.speed = 10*CV.MPH_TO_MS
 
