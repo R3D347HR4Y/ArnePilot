@@ -23,6 +23,7 @@ class CarState(CarStateBase):
       self.pm = messaging.PubMaster(['liveTrafficData'])
       self.sm = messaging.SubMaster(['liveMapData'])
     self.buttonStates = BUTTON_STATES.copy()
+    self.oldButtonStates = BUTTON_STATES.copy()
 
   def update(self, cp, cp_body, enabled):
     ret = car.CarState.new_message()
@@ -67,29 +68,31 @@ class CarState(CarStateBase):
     ret.steeringPressed = abs(ret.steeringTorque) > STEER_THRESHOLD
     ret.steerError = bool(cp.vl["STEERING_STATUS"]['STEERING_OK'] == 0)
 
-    #if bool(cp.vl["HIM_CTRLS"]['SET_BTN']):
-    #    ret.cruiseState.enabled = True
-    ret.cruiseState.enabled = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
 
     ret.cruiseState.available = True
     ret.cruiseState.standstill = False
     ret.cruiseState.nonAdaptive = False
 
+    self.buttonStates["accelCruise"] = bool(cp.vl["HIM_CTRLS"]['SPEEDUP_BTN'])
+    self.buttonStates["decelCruise"] = bool(cp.vl["HIM_CTRLS"]['SPEEDDN_BTN'])
+    self.buttonStates["cancel"] = bool(cp.vl["HIM_CTRLS"]['CANCEL_BTN'])
+    self.buttonStates["setCruise"] = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
+
     #Logic for OP to manage whether it's enabled or not as controls board only sends button inputs
-    if ret.cruiseState.enabled and not(self.oldEnabled):
+
+    if self.buttonStates["setCruise"] and not self.oldButtonStates["setCruise"]:
+        ret.cruiseState.enabled = not ret.cruiseState.enabled
+    #ret.cruiseState.enabled = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
+
+    if ret.cruiseState.enabled and not self.oldEnabled:
         ret.cruiseState.speed = (int_rnd((ret.vEgo * CV.MS_TO_MPH)/5)*5) * CV.MPH_TO_MS
         if ret.standstill:
-            ret.cruiseState.speed = 5*CV.MPH_TO_MS
+            ret.cruiseState.speed = 10*CV.MPH_TO_MS
 
-    if cp.vl["HIM_CTRLS"]['SPEEDUP_BTN']:
+    if self.buttonStates["accelCruise"] and not self.oldButtonStates["accelCruise"]:
         ret.cruiseState.speed = ret.cruiseState.speed + 5*CV.MPH_TO_MS
-    if cp.vl["HIM_CTRLS"]['SPEEDDN_BTN']:
+    if self.buttonStates["decelCruise"] and not self.oldButtonStates["decelCruise"]:
         ret.cruiseState.speed = ret.cruiseState.speed - 5*CV.MPH_TO_MS
-
-    #self.buttonStates["accelCruise"] = bool(cp.vl["HIM_CTRLS"]['SPEEDUP_BTN'])
-    #self.buttonStates["decelCruise"] = bool(cp.vl["HIM_CTRLS"]['SPEEDDN_BTN'])
-    #self.buttonStates["cancel"] = bool(cp.vl["HIM_CTRLS"]['CANCEL_BTN'])
-    #self.buttonStates["setCruise"] = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
 
     if not travis:
       self.sm.update(0)
@@ -99,7 +102,7 @@ class CarState(CarStateBase):
     ret.leftBlindspot = False
     ret.rightBlindspot = False
     self.oldEnabled = ret.cruiseState.enabled
-
+    self.oldButtonStates = self.buttonStates
 
     return ret
 
