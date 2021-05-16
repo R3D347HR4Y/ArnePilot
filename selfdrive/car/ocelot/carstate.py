@@ -69,10 +69,9 @@ class CarState(CarStateBase):
 
     if bool(cp.vl["HIM_CTRLS"]['SET_BTN']) and enabled:
         ret.cruiseState.enabled = False
-    elif bool(cp.vl["HIM_CTRLS"]['SET_BTN']):
+    elif bool(cp.vl["HIM_CTRLS"]['SET_BTN']) and not enabled:
         ret.cruiseState.enabled = True
-        if ret.standstill:
-            ret.cruiseState.speed = 5*CV.MPH_TO_MS
+
 
     ret.cruiseState.available = True
     ret.cruiseState.standstill = False
@@ -81,6 +80,8 @@ class CarState(CarStateBase):
     #Logic for OP to manage whether it's enabled or not as controls board only sends button inputs
     if ret.cruiseState.enabled and not(self.oldEnabled):
         ret.cruiseState.speed = (int_rnd((ret.vEgo * CV.MS_TO_MPH)/5)*5) * CV.MPH_TO_MS
+        if ret.standstill:
+            ret.cruiseState.speed = 5*CV.MPH_TO_MS
 
     if cp.vl["HIM_CTRLS"]['SPEEDUP_BTN']:
         ret.cruiseState.speed = ret.cruiseState.speed + 5*CV.MPH_TO_MS
