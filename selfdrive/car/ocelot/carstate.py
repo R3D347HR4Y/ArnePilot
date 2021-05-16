@@ -19,6 +19,7 @@ class CarState(CarStateBase):
     self.brakeUnavailable = True
     self.oldEnabled = False
     self.engineRPM = 0
+    self.setSpeed = 10
     if not travis:
       self.pm = messaging.PubMaster(['liveTrafficData'])
       self.sm = messaging.SubMaster(['liveMapData'])
@@ -79,17 +80,21 @@ class CarState(CarStateBase):
     self.buttonStates["setCruise"] = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
 
     #Logic for OP to manage whether it's enabled or not as controls board only sends button inputs
+    if not enabled:
+        ret.cruiseState.enabled = False
 
-    #if self.buttonStates["setCruise"] and not self.oldButtonStates["setCruise"]:
-    #    ret.cruiseState.enabled = not ret.cruiseState.enabled
-    ret.cruiseState.enabled = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
+    if self.buttonStates["setCruise"] and not self.oldButtonStates["setCruise"]:
+        ret.cruiseState.enabled = not ret.cruiseState.enabled
+    #ret.cruiseState.enabled = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
 
-    ret.cruiseState.speed = 20*CV.MPH_TO_MS
 
-#    if self.buttonStates["accelCruise"] and not self.oldButtonStates["accelCruise"]:
-#      ret.cruiseState.speed = ret.cruiseState.speed + 5*CV.MPH_TO_MS
-#    if self.buttonStates["decelCruise"] and not self.oldButtonStates["decelCruise"]:
-#      ret.cruiseState.speed = ret.cruiseState.speed - 5*CV.MPH_TO_MS
+    if self.buttonStates["accelCruise"] and not self.oldButtonStates["accelCruise"]:
+      self.setSpeed = self.setSpeed + 5
+    if self.buttonStates["decelCruise"] and not self.oldButtonStates["decelCruise"]:
+      self.setSpeed = self.setSpeed - 5
+
+
+    ret.cruiseState.speed = setSpeed * CV.MPH_TO_MS
 
     if not travis:
       self.sm.update(0)

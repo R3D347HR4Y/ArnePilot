@@ -62,7 +62,7 @@ class CarInterface(CarInterfaceBase):
     # Detect smartDSU, which intercepts ACC_CMD from the DSU allowing openpilot to send it
     # In TSS2 cars the camera does long control
     ret.enableGasInterceptor = True
-    ret.enableCruise = False
+    ret.enableCruise = True
     # if the smartDSU is detected, openpilot can send ACC_CMD (and the smartDSU will block it from the DSU) or not (the DSU is "connected")
     ret.enableDsu = True
     ret.enableCamera = True
@@ -129,7 +129,7 @@ class CarInterface(CarInterfaceBase):
     # Attempt OP engagement only on rising edge of stock ACC engagement.
     elif not self.cruise_enabled_prev:
       events.add(EventName.pcmEnable)
-      ret.cruiseState.speed = ret.vEgo
+
 
     ret.events = events.to_msg()
     ret.buttonEvents = buttonEvents
