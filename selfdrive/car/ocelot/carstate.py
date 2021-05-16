@@ -94,7 +94,7 @@ class CarState(CarStateBase):
       self.setSpeed = self.setSpeed - 5
 
 
-    ret.cruiseState.speed = setSpeed * CV.MPH_TO_MS
+    ret.cruiseState.speed = self.setSpeed * CV.MPH_TO_MS
 
     if not travis:
       self.sm.update(0)
