@@ -80,8 +80,8 @@ class CarState(CarStateBase):
     self.buttonStates["setCruise"] = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
 
     #Logic for OP to manage whether it's enabled or not as controls board only sends button inputs
-    if not enabled:
-        ret.cruiseState.enabled = False
+    #if not enabled:
+    #    ret.cruiseState.enabled = False
 
     if self.buttonStates["setCruise"] and not self.oldEnabled:
         print("enable")
