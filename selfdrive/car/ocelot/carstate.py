@@ -82,10 +82,10 @@ class CarState(CarStateBase):
     #Logic for OP to manage whether it's enabled or not as controls board only sends button inputs
     #if not enabled:
     #    ret.cruiseState.enabled = False
-
-    if not enabled:
-        print("if1")
-        ret.cruiseState.enabled = False
+    print(str(enabled))
+    #if not enabled:
+    #    print("if1")
+    #    ret.cruiseState.enabled = False
     # Attempt OP engagement only on rising edge of stock ACC engagement.
     if not bool(self.oldButtonStates["setCruise"]):
         print("if2")
