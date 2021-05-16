@@ -82,8 +82,6 @@ class CarState(CarStateBase):
     #Logic for OP to manage whether it's enabled or not as controls board only sends button inputs
     #if not enabled:
     #    ret.cruiseState.enabled = False
-    risingedge = bool(self.buttonStates["setCruise"]) and not
-
 
     if not enabled:
         print("if1")
