@@ -67,7 +67,9 @@ class CarState(CarStateBase):
     ret.steeringPressed = abs(ret.steeringTorque) > STEER_THRESHOLD
     ret.steerError = bool(cp.vl["STEERING_STATUS"]['STEERING_OK'] == 0)
 
-    if cp.vl["HIM_CTRLS"]['SET_BTN']:
+    if cp.vl["HIM_CTRLS"]['SET_BTN'] and enabled:
+        ret.cruiseState.enabled = False
+    elif cp.vl["HIM_CTRLS"]['SET_BTN'] and not enabled:
         ret.cruiseState.enabled = True
 
     ret.cruiseState.available = True
