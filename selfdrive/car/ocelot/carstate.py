@@ -67,9 +67,9 @@ class CarState(CarStateBase):
     ret.steeringPressed = abs(ret.steeringTorque) > STEER_THRESHOLD
     ret.steerError = bool(cp.vl["STEERING_STATUS"]['STEERING_OK'] == 0)
 
-    if cp.vl["HIM_CTRLS"]['SET_BTN'] and enabled:
+    if bool(cp.vl["HIM_CTRLS"]['SET_BTN']) and enabled:
         ret.cruiseState.enabled = False
-    elif cp.vl["HIM_CTRLS"]['SET_BTN'] and not enabled:
+    elif bool(cp.vl["HIM_CTRLS"]['SET_BTN']):
         ret.cruiseState.enabled = True
 
     ret.cruiseState.available = True
@@ -85,10 +85,10 @@ class CarState(CarStateBase):
     if cp.vl["HIM_CTRLS"]['SPEEDDN_BTN']:
         ret.cruiseState.speed = ret.cruiseState.speed - 5*CV.MPH_TO_MS
 
-    self.buttonStates["accelCruise"] = bool(cp.vl["HIM_CTRLS"]['SPEEDUP_BTN'])
-    self.buttonStates["decelCruise"] = bool(cp.vl["HIM_CTRLS"]['SPEEDDN_BTN'])
-    self.buttonStates["cancel"] = bool(cp.vl["HIM_CTRLS"]['CANCEL_BTN'])
-    self.buttonStates["setCruise"] = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
+    #self.buttonStates["accelCruise"] = bool(cp.vl["HIM_CTRLS"]['SPEEDUP_BTN'])
+    #self.buttonStates["decelCruise"] = bool(cp.vl["HIM_CTRLS"]['SPEEDDN_BTN'])
+    #self.buttonStates["cancel"] = bool(cp.vl["HIM_CTRLS"]['CANCEL_BTN'])
+    #self.buttonStates["setCruise"] = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
 
     if not travis:
       self.sm.update(0)
