@@ -26,9 +26,12 @@ class CarState(CarStateBase):
     self.buttonStates = BUTTON_STATES.copy()
     self.oldButtonStates = BUTTON_STATES.copy()
 
+    #sebs variables-------------------
     self.allowenable = bool(True)
     self.allowdisable = bool(False)
+    
     self.allowsendset = bool(False)
+    #---------------------------------
 
   def update(self, cp, cp_body, enabled):
     ret = car.CarState.new_message()
@@ -125,7 +128,7 @@ class CarState(CarStateBase):
         self.allowenable = False
         self.allowsendset = True
       if self.allowdisable:
-        print("set allowenable")
+        print("set allowdisable")
         self.allowdisable = False
         self.allowsendset = False
 
@@ -133,13 +136,13 @@ class CarState(CarStateBase):
     if self.allowsendset:
       print("request OP ON")
       ret.cruiseState.enabled = True
-      self.allowenable = False
-      self.allowdisable = True
+      #self.allowenable = False
+      #self.allowdisable = True
     if not self.allowsendset:
       print("request OP OFF")
       ret.cruiseState.enabled = False
-      self.allowenable = True
-      self.allowdisable = False
+      #self.allowenable = True
+      #self.allowdisable = False
 
 
     #if self.buttonStates["accelCruise"]:
