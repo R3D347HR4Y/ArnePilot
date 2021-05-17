@@ -91,11 +91,13 @@ class CarState(CarStateBase):
       print(" --- not enabled")
       #self.allowenable = True
       #ret.cruiseState.enabled = False
-    print(self.allowenable)
     
     #Attempt OP engagement only on rising edge of stock ACC engagement.
     #if not bool(self.oldButtonStates["setCruise"]):
-    #  print("if2")  
+    #  print("if2")
+
+    print("allowenable: ")
+    print(self.allowenable)
 
     if bool(self.buttonStates["setCruise"]):
       print("attempt enable")
@@ -104,9 +106,16 @@ class CarState(CarStateBase):
         self.allowenable = False
         self.allowsendset = True
 
+    #print("allowenable: ")
+    #print(self.allowenable)
+
     if self.allowsendset:
-      print(" sent enabled")
+      print(" allow send enabled")
       ret.cruiseState.enabled = True
+
+    if not self.allowsendset:
+      print(" allow send disabled")
+      ret.cruiseState.enabled = False
     
     #ret.cruiseState.enabled = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
 
@@ -126,7 +135,7 @@ class CarState(CarStateBase):
     ret.stockAeb = False
     ret.leftBlindspot = False
     ret.rightBlindspot = False
-    self.oldEnabled = ret.cruiseState.enabled
+    #self.oldEnabled = ret.cruiseState.enabled
     self.oldButtonStates = self.buttonStates
 
     return ret
