@@ -112,12 +112,12 @@ class CarInterface(CarInterfaceBase):
     ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False
     ret.engineRPM = self.CS.engineRPM
 
-    for button in self.CS.buttonStates:
-      if self.CS.buttonStates[button] != self.buttonStatesPrev[button]:
-        be = car.CarState.ButtonEvent.new_message()
-        be.type = button
-        be.pressed = self.CS.buttonStates[button]
-        buttonEvents.append(be)
+#    for button in self.CS.buttonStates:
+#      if self.CS.buttonStates[button] != self.buttonStatesPrev[button]:
+#        be = car.CarState.ButtonEvent.new_message()
+#        be.type = button
+#        be.pressed = self.CS.buttonStates[button]
+#        buttonEvents.append(be)
 
 
 

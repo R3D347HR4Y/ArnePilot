@@ -100,17 +100,17 @@ class CarState(CarStateBase):
     if bool(self.buttonStates["setCruise"]) and not self.oldEnabled:
       print("attempt enable")
       self.enabled = not self.enabled
-#      if self.enabled and bool(self.buttonStates["setCruise"]) and not self.oldEnabled:
-#          self.setSpeed = (int_rnd((ret.vEgo * CV.MS_TO_MPH)/5) * 5)
-#          if ret.standstill:
-#            self.setSpeed = 10
+      if self.enabled and bool(self.buttonStates["setCruise"]) and not self.oldEnabled:
+          self.setSpeed = (int_rnd((ret.vEgo * CV.MS_TO_MPH)/5) * 5)
+          if ret.standstill:
+            self.setSpeed = 10
 
-    if bool(self.buttonStates["accelCruise"]) and not self.oldSpeedUp:
-      print("speedup")
-      self.setSpeed = self.setSpeed + 5
-    if bool(self.buttonStates["decelCruise"]) and not self.oldSpeedDn:
-      print("speeddn")
-      self.setSpeed = self.setSpeed - 5
+#    if bool(self.buttonStates["accelCruise"]) and not self.oldSpeedUp:
+#      print("speedup")
+#      self.setSpeed = self.setSpeed + 5
+#    if bool(self.buttonStates["decelCruise"]) and not self.oldSpeedDn:
+#      print("speeddn")
+#      self.setSpeed = self.setSpeed - 5
 
     ret.cruiseState.speed = self.setSpeed * CV.MPH_TO_MS
     ret.cruiseState.enabled = self.enabled
