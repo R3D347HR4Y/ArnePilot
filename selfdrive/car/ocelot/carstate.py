@@ -84,11 +84,9 @@ class CarState(CarStateBase):
     self.buttonStates["setCruise"] = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
 
     if enabled:
-      print(" OPENPILOT ENABLED")
-      #self.allowenable = False
+      print(" OPENPILOT ENABLED")    
     if not enabled:
       print(" OPENPILOT OFF")
-      #self.allowenable = True
     
 
     if self.allowenable:
@@ -109,13 +107,15 @@ class CarState(CarStateBase):
         self.allowenable = False
         self.allowsendset = True
 
-
+    #allowsendset keeps track of op engage status independently in carstate
     if self.allowsendset:
       print("allow send enabled")
       ret.cruiseState.enabled = True
+      self.allowenable = False
     if not self.allowsendset:
       print("allow send disabled")
       ret.cruiseState.enabled = False
+      self.allowenable = True
 
 
     #if self.buttonStates["accelCruise"]:
