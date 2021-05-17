@@ -10,6 +10,7 @@ from common.travis_checker import travis
 from common.op_params import opParams
 
 op_params = opParams()
+allowenable = bool(False)
 
 class CarState(CarStateBase):
   def __init__(self, CP):
@@ -81,17 +82,26 @@ class CarState(CarStateBase):
 
     #Logic for OP to manage whether it's enabled or not as controls board only sends button inputs
     if enabled:
-    #    ret.cruiseState.enabled = False
-      print("enabled")
+      #ret.cruiseState.enabled = False
+      print(" --- enabled")
+      allowenable = False
     if not enabled:
-      print("not enabled")
-        #ret.cruiseState.enabled = False
-    # Attempt OP engagement only on rising edge of stock ACC engagement.
-    if not bool(self.oldButtonStates["setCruise"]):
-      print("if2")
+      print(" --- not enabled")
+      allowenable = True
+      #ret.cruiseState.enabled = False
+
+    print(allowenable)
+    
+    #Attempt OP engagement only on rising edge of stock ACC engagement.
+    #if not bool(self.oldButtonStates["setCruise"]):
+    #  print("if2")
+    
+
     if bool(self.buttonStates["setCruise"]):
       print("attempt enable")
-      ret.cruiseState.enabled = not ret.cruiseState.enabled
+      if allowenable:
+        ret.cruiseState.enabled = true
+    
     #ret.cruiseState.enabled = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
 
     #if self.buttonStates["accelCruise"]:
