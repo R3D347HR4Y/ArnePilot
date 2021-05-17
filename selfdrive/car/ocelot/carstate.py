@@ -120,8 +120,8 @@ class CarState(CarStateBase):
     ret.leftBlindspot = False
     ret.rightBlindspot = False
     self.oldEnabled = bool(self.buttonStates["setCruise"])
-    self.oldSpeedDn = bool(buttonStates["decelCruise"])
-    self.oldSpeedUp = bool(buttonStates["accelCruise"])
+    self.oldSpeedDn = bool(self.buttonStates["decelCruise"])
+    self.oldSpeedUp = bool(self.buttonStates["accelCruise"])
 
     #try harrys implementation
     self.oldEnabled = bool(self.buttonStates["setCruise"])
