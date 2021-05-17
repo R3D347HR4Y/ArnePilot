@@ -27,6 +27,7 @@ class CarState(CarStateBase):
     self.oldButtonStates = BUTTON_STATES.copy()
 
     self.allowenable = bool(True)
+    self.allowsendset = bool(False)
 
   def update(self, cp, cp_body, enabled):
     ret = car.CarState.new_message()
@@ -90,7 +91,6 @@ class CarState(CarStateBase):
       print(" --- not enabled")
       #self.allowenable = True
       #ret.cruiseState.enabled = False
-
     print(self.allowenable)
     
     #Attempt OP engagement only on rising edge of stock ACC engagement.
@@ -100,8 +100,13 @@ class CarState(CarStateBase):
     if bool(self.buttonStates["setCruise"]):
       print("attempt enable")
       if self.allowenable:
-        ret.cruiseState.enabled = True
+        print("set allowenable")
         self.allowenable = False
+        self.allowsendset = True
+
+    if self.allowsendset:
+      print(" sent enabled")
+      ret.cruiseState.enabled = True
     
     #ret.cruiseState.enabled = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
 
