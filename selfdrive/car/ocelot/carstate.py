@@ -27,6 +27,7 @@ class CarState(CarStateBase):
     self.oldButtonStates = BUTTON_STATES.copy()
 
     self.allowenable = bool(True)
+    self.allowdisable = bool(False)
     self.allowsendset = bool(False)
 
   def update(self, cp, cp_body, enabled):
@@ -84,15 +85,21 @@ class CarState(CarStateBase):
 
     if enabled:
       print(" OPENPILOT ENABLED")
+      self.allowenable = False
     if not enabled:
       print(" OPENPILOT OFF")
+      self.allowenable = True
     
 
     if self.allowenable:
       print("allowenable true")
-
     if not self.allowenable:
       print("allowenable false")
+
+    if self.allowdisable:
+      print("allowdisable true")
+    if not self.allowdisable:
+      print("allowdisable false")
     
 
     if bool(self.buttonStates["setCruise"]):
@@ -102,10 +109,10 @@ class CarState(CarStateBase):
         self.allowenable = False
         self.allowsendset = True
 
+
     if self.allowsendset:
       print("allow send enabled")
       ret.cruiseState.enabled = True
-
     if not self.allowsendset:
       print("allow send disabled")
       ret.cruiseState.enabled = False
