@@ -29,15 +29,6 @@ class CarState(CarStateBase):
     self.buttonStates = BUTTON_STATES.copy()
     self.oldButtonStates = BUTTON_STATES.copy()
 
-    self.oldEnabled = False
-
-    #sebs variables-------------------
-    self.allowenable = bool(True)
-    self.allowdisable = bool(False)
-
-    self.allowsendset = bool(False)
-    #---------------------------------
-
   def update(self, cp, cp_body, enabled):
     ret = car.CarState.new_message()
 
@@ -105,12 +96,12 @@ class CarState(CarStateBase):
           if ret.standstill:
             self.setSpeed = 10
 
-#    if bool(self.buttonStates["accelCruise"]) and not self.oldSpeedUp:
-#      print("speedup")
-#      self.setSpeed = self.setSpeed + 5
-#    if bool(self.buttonStates["decelCruise"]) and not self.oldSpeedDn:
-#      print("speeddn")
-#      self.setSpeed = self.setSpeed - 5
+    if bool(self.buttonStates["accelCruise"]) and not self.oldSpeedUp:
+      print("speedup")
+      self.setSpeed = self.setSpeed + 5
+    if bool(self.buttonStates["decelCruise"]) and not self.oldSpeedDn:
+      print("speeddn")
+      self.setSpeed = self.setSpeed - 5
 
     ret.cruiseState.speed = self.setSpeed * CV.MPH_TO_MS
     ret.cruiseState.enabled = self.enabled
@@ -126,9 +117,6 @@ class CarState(CarStateBase):
     self.oldEnabled = bool(self.buttonStates["setCruise"])
     self.oldSpeedDn = bool(self.buttonStates["decelCruise"])
     self.oldSpeedUp = bool(self.buttonStates["accelCruise"])
-
-    #try harrys implementation
-    self.oldEnabled = bool(self.buttonStates["setCruise"])
 
     return ret
 
