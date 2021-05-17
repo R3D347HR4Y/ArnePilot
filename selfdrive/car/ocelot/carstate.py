@@ -87,6 +87,7 @@ class CarState(CarStateBase):
       print(" OPENPILOT ENABLED")    
     if not enabled:
       print(" OPENPILOT OFF")
+      self.enabled = False
 
     if bool(self.buttonStates["setCruise"]) and not self.oldButtonStates["setCruise"]:
       print("attempt enable")
@@ -99,6 +100,8 @@ class CarState(CarStateBase):
     if self.buttonStates["decelCruise"] and not self.oldButtonStates["decelCruise"]:
       print("speeddn")
       self.setSpeed = self.setSpeed - 5
+
+    ret.cruiseState.enabled = self.enabled
     
 
     # if self.allowenable:
