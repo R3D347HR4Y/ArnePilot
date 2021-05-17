@@ -83,15 +83,15 @@ class CarState(CarStateBase):
     #if not enabled:
     #    ret.cruiseState.enabled = False
     #print(str(enabled))
-    if not enabled:
-        print("if1")
+    #if not enabled:
+    #    print("if1")
         #ret.cruiseState.enabled = False
     # Attempt OP engagement only on rising edge of stock ACC engagement.
-    if not bool(self.oldButtonStates["setCruise"]):
-        print("if2")
-    if bool(self.buttonStates["setCruise"]):
-        print("if3")
-        ret.cruiseState.enabled = not ret.cruiseState.enabled
+    #if not bool(self.oldButtonStates["setCruise"]):
+    #    print("if2")
+    #if bool(self.buttonStates["setCruise"]):
+    #    print("if3")
+    #    ret.cruiseState.enabled = not ret.cruiseState.enabled
     #ret.cruiseState.enabled = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
 
 
