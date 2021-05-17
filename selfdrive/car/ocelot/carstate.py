@@ -80,20 +80,19 @@ class CarState(CarStateBase):
     self.buttonStates["setCruise"] = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
 
     #Logic for OP to manage whether it's enabled or not as controls board only sends button inputs
-    #if not enabled:
+    if enabled:
     #    ret.cruiseState.enabled = False
-    #print(str(enabled))
-    #if not enabled:
-    #    print("if1")
+      print("enabled")
+    if not enabled:
+      print("not enabled")
         #ret.cruiseState.enabled = False
     # Attempt OP engagement only on rising edge of stock ACC engagement.
-    #if not bool(self.oldButtonStates["setCruise"]):
-    #    print("if2")
-    #if bool(self.buttonStates["setCruise"]):
-    #    print("if3")
-    #    ret.cruiseState.enabled = not ret.cruiseState.enabled
+    if not bool(self.oldButtonStates["setCruise"]):
+      print("if2")
+    if bool(self.buttonStates["setCruise"]):
+      print("attempt enable")
+      ret.cruiseState.enabled = not ret.cruiseState.enabled
     #ret.cruiseState.enabled = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
-
 
     #if self.buttonStates["accelCruise"]:
     #  print("speedup")
@@ -101,7 +100,6 @@ class CarState(CarStateBase):
     #if self.buttonStates["decelCruise"]:
     #  print("speeddn")
     #  self.setSpeed = self.setSpeed - 5
-
 
     ret.cruiseState.speed = self.setSpeed * CV.MPH_TO_MS
 
