@@ -26,7 +26,7 @@ class CarState(CarStateBase):
     self.buttonStates = BUTTON_STATES.copy()
     self.oldButtonStates = BUTTON_STATES.copy()
 
-    self.allowenable = bool(False)
+    self.allowenable = bool(True)
 
   def update(self, cp, cp_body, enabled):
     ret = car.CarState.new_message()
@@ -88,7 +88,7 @@ class CarState(CarStateBase):
       #allowenable = False
     if not enabled:
       print(" --- not enabled")
-      self.allowenable = True
+      #self.allowenable = True
       #ret.cruiseState.enabled = False
 
     print(self.allowenable)
