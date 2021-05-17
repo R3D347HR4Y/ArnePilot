@@ -89,7 +89,7 @@ class CarState(CarStateBase):
       print(" OPENPILOT OFF")
       self.enabled = False
 
-    if bool(self.buttonStates["setCruise"]) and not self.oldButtonStates["setCruise"]:
+    if bool(self.buttonStates["setCruise"]) and not self.enabled:
       print("attempt enable")
       self.enabled = not self.enabled
 
