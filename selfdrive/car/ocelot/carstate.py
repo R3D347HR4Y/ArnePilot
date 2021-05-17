@@ -26,6 +26,8 @@ class CarState(CarStateBase):
     self.buttonStates = BUTTON_STATES.copy()
     self.oldButtonStates = BUTTON_STATES.copy()
 
+    self.oldEnabled = False
+
     #sebs variables-------------------
     self.allowenable = bool(True)
     self.allowdisable = bool(False)
@@ -86,71 +88,63 @@ class CarState(CarStateBase):
     self.buttonStates["cancel"] = bool(cp.vl["HIM_CTRLS"]['CANCEL_BTN'])
     self.buttonStates["setCruise"] = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
 
+    if enabled:
+      print(" OPENPILOT ENABLED")
+    if not enabled:
+      print(" OPENPILOT OFF")
+      self.enabled = False
+
+    if bool(self.buttonStates["setCruise"]) and not self.oldEnabled:
+      print("attempt enable")
+      self.enabled = not self.enabled
+
+    if self.buttonStates["accelCruise"] and not self.oldButtonStates["accelCruise"]:
+      print("speedup")
+      self.setSpeed = self.setSpeed + 5
+    if self.buttonStates["decelCruise"] and not self.oldButtonStates["decelCruise"]:
+      print("speeddn")
+      self.setSpeed = self.setSpeed - 5
+      
+    ret.cruiseState.enabled = self.enabled
+
+
+    #sebs code, working for set engage and latch
     # if enabled:
     #   print(" OPENPILOT ENABLED")    
     # if not enabled:
-    #   print(" OPENPILOT OFF")
-    #   self.enabled = False
+    #   print(" OPENPILOT OFF")  
 
-    # if bool(self.buttonStates["setCruise"]) and not self.enabled:
+    # if self.allowenable:
+    #   print("allowenable true")
+    # if not self.allowenable:
+    #   print("allowenable false")
+
+    # if self.allowdisable:
+    #   print("allowdisable true")
+    # if not self.allowdisable:
+    #   print("allowdisable false")
+    
+
+    # if bool(self.buttonStates["setCruise"]):
     #   print("attempt enable")
-    #   self.enabled = not self.enabled
+    #   if self.allowenable:
+    #     print("set allowenable")
+    #     self.allowenable = False
+    #     self.allowsendset = True
+    #   if self.allowdisable:
+    #     print("set allowdisable")
+    #     self.allowdisable = False
+    #     self.allowsendset = False
 
-    # if self.buttonStates["accelCruise"] and not self.oldButtonStates["accelCruise"]:
-    #   print("speedup")
-    #   self.setSpeed = self.setSpeed + 5
-    
-    # if self.buttonStates["decelCruise"] and not self.oldButtonStates["decelCruise"]:
-    #   print("speeddn")
-    #   self.setSpeed = self.setSpeed - 5
-    # ret.cruiseState.enabled = self.enabled
-
-    if enabled:
-      print(" OPENPILOT ENABLED")    
-    if not enabled:
-      print(" OPENPILOT OFF")  
-
-    if self.allowenable:
-      print("allowenable true")
-    if not self.allowenable:
-      print("allowenable false")
-
-    if self.allowdisable:
-      print("allowdisable true")
-    if not self.allowdisable:
-      print("allowdisable false")
-    
-
-    if bool(self.buttonStates["setCruise"]):
-      print("attempt enable")
-      if self.allowenable:
-        print("set allowenable")
-        self.allowenable = False
-        self.allowsendset = True
-      if self.allowdisable:
-        print("set allowdisable")
-        self.allowdisable = False
-        self.allowsendset = False
-
-    #allowsendset keeps track of op engage status independently in carstate
-    if self.allowsendset:
-      print("request OP ON")
-      ret.cruiseState.enabled = True
-      #self.allowenable = False
-      #self.allowdisable = True
-    if not self.allowsendset:
-      print("request OP OFF")
-      ret.cruiseState.enabled = False
-      #self.allowenable = True
-      #self.allowdisable = False
+    # if self.allowsendset:
+    #   print("request OP ON")
+    #   ret.cruiseState.enabled = True
+    # if not self.allowsendset:
+    #   print("request OP OFF")
+    #   ret.cruiseState.enabled = False
 
 
-    #if self.buttonStates["accelCruise"]:
-    #  print("speedup")
-    #  self.setSpeed = self.setSpeed + 5
-    #if self.buttonStates["decelCruise"]:
-    #  print("speeddn")
-    #  self.setSpeed = self.setSpeed - 5
+
     ret.cruiseState.speed = self.setSpeed * CV.MPH_TO_MS
 
     if not travis:
@@ -161,6 +155,9 @@ class CarState(CarStateBase):
     ret.leftBlindspot = False
     ret.rightBlindspot = False
     self.oldButtonStates = self.buttonStates
+
+    #try harrys implementation
+    self.oldEnabled = bool(self.buttonStates["setCruise"])
 
     return ret
 
