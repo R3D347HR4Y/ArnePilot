@@ -85,10 +85,10 @@ class CarState(CarStateBase):
 
     if enabled:
       print(" OPENPILOT ENABLED")
-      self.allowenable = False
+      #self.allowenable = False
     if not enabled:
       print(" OPENPILOT OFF")
-      self.allowenable = True
+      #self.allowenable = True
     
 
     if self.allowenable:
