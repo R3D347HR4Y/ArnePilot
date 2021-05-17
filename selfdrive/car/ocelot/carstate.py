@@ -17,7 +17,7 @@ class CarState(CarStateBase):
     can_define = CANDefine(DBC[CP.carFingerprint]['chassis'])
     self.shifter_values = can_define.dv["GEAR_PACKET"]['GEAR']
     self.brakeUnavailable = True
-    self.oldEnabled = False
+    self.enabled = False
     self.engineRPM = 0
     self.setSpeed = 10
     if not travis:
@@ -87,35 +87,47 @@ class CarState(CarStateBase):
       print(" OPENPILOT ENABLED")    
     if not enabled:
       print(" OPENPILOT OFF")
-    
 
-    if self.allowenable:
-      print("allowenable true")
-    if not self.allowenable:
-      print("allowenable false")
-
-    if self.allowdisable:
-      print("allowdisable true")
-    if not self.allowdisable:
-      print("allowdisable false")
-    
-
-    if bool(self.buttonStates["setCruise"]):
+    if bool(self.buttonStates["setCruise"]) and not self.oldButtonStates["setCruise"]:
       print("attempt enable")
-      if self.allowenable:
-        print("set allowenable")
-        self.allowenable = False
-        self.allowsendset = True
+      self.enabled = not self.enabled
 
-    #allowsendset keeps track of op engage status independently in carstate
-    if self.allowsendset:
-      print("allow send enabled")
-      ret.cruiseState.enabled = True
-      self.allowenable = False
-    if not self.allowsendset:
-      print("allow send disabled")
-      ret.cruiseState.enabled = False
-      self.allowenable = True
+    if self.buttonStates["accelCruise"] and not self.oldButtonStates["accelCruise"]:
+      print("speedup")
+      self.setSpeed = self.setSpeed + 5
+    
+    if self.buttonStates["decelCruise"] and not self.oldButtonStates["decelCruise"]:
+      print("speeddn")
+      self.setSpeed = self.setSpeed - 5
+    
+
+    # if self.allowenable:
+    #   print("allowenable true")
+    # if not self.allowenable:
+    #   print("allowenable false")
+
+    # if self.allowdisable:
+    #   print("allowdisable true")
+    # if not self.allowdisable:
+    #   print("allowdisable false")
+    
+
+    # if bool(self.buttonStates["setCruise"]):
+    #   print("attempt enable")
+    #   if self.allowenable:
+    #     print("set allowenable")
+    #     self.allowenable = False
+    #     self.allowsendset = True
+
+    # #allowsendset keeps track of op engage status independently in carstate
+    # if self.allowsendset:
+    #   print("allow send enabled")
+    #   ret.cruiseState.enabled = True
+    #   #self.allowenable = False
+    # if not self.allowsendset:
+    #   print("allow send disabled")
+    #   ret.cruiseState.enabled = False
+      #self.allowenable = True
 
 
     #if self.buttonStates["accelCruise"]:
