@@ -82,22 +82,18 @@ class CarState(CarStateBase):
     self.buttonStates["cancel"] = bool(cp.vl["HIM_CTRLS"]['CANCEL_BTN'])
     self.buttonStates["setCruise"] = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
 
-    #Logic for OP to manage whether it's enabled or not as controls board only sends button inputs
     if enabled:
-      #ret.cruiseState.enabled = False
-      print(" --- enabled")
-      #allowenable = False
+      print(" OPENPILOT ENABLED")
     if not enabled:
-      print(" --- not enabled")
-      #self.allowenable = True
-      #ret.cruiseState.enabled = False
+      print(" OPENPILOT OFF")
     
-    #Attempt OP engagement only on rising edge of stock ACC engagement.
-    #if not bool(self.oldButtonStates["setCruise"]):
-    #  print("if2")
 
-    print("allowenable: ")
-    print(self.allowenable)
+    if self.allowenable:
+      print("allowenable true")
+
+    if not self.allowenable:
+      print("allowenable false")
+    
 
     if bool(self.buttonStates["setCruise"]):
       print("attempt enable")
@@ -106,18 +102,14 @@ class CarState(CarStateBase):
         self.allowenable = False
         self.allowsendset = True
 
-    #print("allowenable: ")
-    #print(self.allowenable)
-
     if self.allowsendset:
-      print(" allow send enabled")
+      print("allow send enabled")
       ret.cruiseState.enabled = True
 
     if not self.allowsendset:
-      print(" allow send disabled")
+      print("allow send disabled")
       ret.cruiseState.enabled = False
-    
-    #ret.cruiseState.enabled = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
+
 
     #if self.buttonStates["accelCruise"]:
     #  print("speedup")
@@ -125,7 +117,6 @@ class CarState(CarStateBase):
     #if self.buttonStates["decelCruise"]:
     #  print("speeddn")
     #  self.setSpeed = self.setSpeed - 5
-
     ret.cruiseState.speed = self.setSpeed * CV.MPH_TO_MS
 
     if not travis:
