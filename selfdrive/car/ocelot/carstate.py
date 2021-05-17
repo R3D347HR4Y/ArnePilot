@@ -10,7 +10,6 @@ from common.travis_checker import travis
 from common.op_params import opParams
 
 op_params = opParams()
-allowenable = bool(False)
 
 class CarState(CarStateBase):
   def __init__(self, CP):
@@ -26,6 +25,8 @@ class CarState(CarStateBase):
       self.sm = messaging.SubMaster(['liveMapData'])
     self.buttonStates = BUTTON_STATES.copy()
     self.oldButtonStates = BUTTON_STATES.copy()
+
+    self.allowenable = bool(False)
 
   def update(self, cp, cp_body, enabled):
     ret = car.CarState.new_message()
@@ -87,10 +88,10 @@ class CarState(CarStateBase):
       #allowenable = False
     if not enabled:
       print(" --- not enabled")
-      allowenable = True
+      self.allowenable = True
       #ret.cruiseState.enabled = False
 
-    print(allowenable)
+    print(self.allowenable)
     
     #Attempt OP engagement only on rising edge of stock ACC engagement.
     #if not bool(self.oldButtonStates["setCruise"]):
@@ -98,9 +99,9 @@ class CarState(CarStateBase):
 
     if bool(self.buttonStates["setCruise"]):
       print("attempt enable")
-      if allowenable:
+      if self.allowenable:
         ret.cruiseState.enabled = True
-        allowenable = False
+        self.allowenable = False
     
     #ret.cruiseState.enabled = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
 
