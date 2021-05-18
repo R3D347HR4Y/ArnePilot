@@ -82,11 +82,11 @@ class CarState(CarStateBase):
     self.buttonStates["cancel"] = bool(cp.vl["HIM_CTRLS"]['CANCEL_BTN'])
     self.buttonStates["setCruise"] = bool(cp.vl["HIM_CTRLS"]['SET_BTN'])
 
-    if enabled:
+    #if enabled:
       #print(" OPENPILOT ENABLED")
     if not enabled:
-      #print(" OPENPILOT OFF")
       self.enabled = False
+      #print(" OPENPILOT OFF")
 
     if bool(self.buttonStates["setCruise"]) and not self.oldEnabled:
       print("attempt enable")
