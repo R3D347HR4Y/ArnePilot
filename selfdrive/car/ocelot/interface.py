@@ -31,66 +31,56 @@ class CarInterface(CarInterfaceBase):
     ret.lateralTuning.init('pid')
     ret.safetyModel = car.CarParams.SafetyModel.allOutput
 
-    ret.steerActuatorDelay = 0.12  # Default delay, Prius has larger delay
+    ret.steerActuatorDelay = 0.12
     ret.steerLimitTimer = 0.4
 
     if candidate == CAR.SMART_ROADSTER_COUPE:
         ret.lateralTuning.init('pid')
         ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0.], [0.]]
+        ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.3], [0.05]]
+        ret.lateralTuning.pid.kf = 0.00007   # full torque for 20 deg at 80mph means 0.00007818594
         ret.safetyParam = 100
         ret.wheelbase = 2.36
         ret.steerRatio = 21
         tire_stiffness_factor = 0.444
         ret.mass = 810 + STD_CARGO_KG
-        ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.3], [0.05]]
-        ret.lateralTuning.pid.kf = 0.00007   # full torque for 20 deg at 80mph means 0.00007818594
         ret.steerRateCost = 1.
         ret.centerToFront = ret.wheelbase * 0.44
 
 
     ret = common_interface_get_params_lqr(ret)
 
-    # TODO: get actual value, for now starting with reasonable value for
-    # civic and scaling by mass and wheelbase
     ret.rotationalInertia = scale_rot_inertia(ret.mass, ret.wheelbase)
-
-    # TODO: start from empirically derived lateral slip stiffness for the civic and scale by
-    # mass and CG position, so all cars will have approximately similar dyn behaviors
     ret.tireStiffnessFront, ret.tireStiffnessRear = scale_tire_stiffness(ret.mass, ret.wheelbase, ret.centerToFront,
                                                                          tire_stiffness_factor=tire_stiffness_factor)
 
-    # Detect smartDSU, which intercepts ACC_CMD from the DSU allowing openpilot to send it
-    # In TSS2 cars the camera does long control
     ret.enableGasInterceptor = True
     ret.enableCruise = True
-    # if the smartDSU is detected, openpilot can send ACC_CMD (and the smartDSU will block it from the DSU) or not (the DSU is "connected")
     ret.enableDsu = True
     ret.enableCamera = True
     ret.openpilotLongitudinalControl = True
     cloudlog.warning("ECU Gas Interceptor: %r", ret.enableGasInterceptor)
-
-    # min speed to enable ACC. if car can do stop and go, then set enabling speed
-    # to a negative value, so it won't matter.
     ret.minEnableSpeed = -1.
 
-
+    #Longitudinal deadzone values
     ret.longitudinalTuning.deadzoneBP = [0., 9.]
     ret.longitudinalTuning.deadzoneV = [0., .15]
+    
+    #Longitudinal Proportional values
     ret.longitudinalTuning.kpBP = [0., 5., 35.]
+    ret.longitudinalTuning.kpV = [1.1, 0.7, 0.4]
+    
+    #Longitudinal Integral Values
     ret.longitudinalTuning.kiBP = [0., 35.]
+    ret.longitudinalTuning.kiV = [0.8, 0.2]
 
-    if ret.enableGasInterceptor:
-      ret.gasMaxBP = [0., 9., 35]
-      ret.gasMaxV = [0.2, 0.5, 0.7]
-      ret.longitudinalTuning.kpV = [1.2, 0.8, 0.5]
-      ret.longitudinalTuning.kiV = [0.18, 0.12]
-    else:
-      ret.gasMaxBP = [0.]
-      ret.gasMaxV = [0.5]
-      ret.longitudinalTuning.kpV = [3.6, 2.4, 1.5]
-      ret.longitudinalTuning.kiV = [0.54, 0.36]
+    #Gas maximum values
+    ret.gasMaxBP = [0., 9., 35]
+    ret.gasMaxV = [0.2, 0.4, 0.5]
 
-    # dp
+    #Brake maximum values
+    ret.brakeMaxBP = [5., 20.]
+    ret.brakeMaxV = [1., 0.8]
 
     return ret
 
@@ -107,20 +97,9 @@ class CarInterface(CarInterfaceBase):
     self.dragonconf = dragonconf
     ret.cruiseState.enabled = common_interface_atl(ret, dragonconf.dpAtl)
 
-
     ret.canValid = self.cp.can_valid and self.cp_body.can_valid
     ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False
     ret.engineRPM = self.CS.engineRPM
-
-#    for button in self.CS.buttonStates:
-#      if self.CS.buttonStates[button] != self.buttonStatesPrev[button]:
-#        be = car.CarState.ButtonEvent.new_message()
-#        be.type = button
-#        be.pressed = self.CS.buttonStates[button]
-#        buttonEvents.append(be)
-
-
-
 
     # events
     events = self.create_common_events(ret)
@@ -129,7 +108,6 @@ class CarInterface(CarInterfaceBase):
     # Attempt OP engagement only on rising edge of stock ACC engagement.
     elif not self.cruise_enabled_prev:
       events.add(EventName.pcmEnable)
-
 
     ret.events = events.to_msg()
     ret.buttonEvents = buttonEvents
