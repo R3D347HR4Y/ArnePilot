@@ -41,7 +41,7 @@ class CarInterface(CarInterfaceBase):
         ret.lateralTuning.pid.kf = 0.00007   # full torque for 20 deg at 80mph means 0.00007818594
         ret.safetyParam = 100
         ret.wheelbase = 2.36
-        ret.steerRatio = 15
+        ret.steerRatio = 21
         tire_stiffness_factor = 0.444
         ret.mass = 810 + STD_CARGO_KG
         ret.steerRateCost = 1.

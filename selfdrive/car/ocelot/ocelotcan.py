@@ -3,7 +3,7 @@ def create_steer_command(packer, steer, steer_req, raw_cnt):
 
   values = {
     "STEER_MODE": steer_req,
-    "REQUESTED_STEER_TORQUE": steer * 255,
+    "REQUESTED_STEER_TORQUE": steer,
     "COUNTER": raw_cnt,
   }
   return packer.make_can_msg("STEERING_COMMAND", 1, values)
