@@ -37,11 +37,11 @@ class CarInterface(CarInterfaceBase):
     if candidate == CAR.SMART_ROADSTER_COUPE:
         ret.lateralTuning.init('pid')
         ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0.], [0.]]
-        ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.05], [0.005]]
+        ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.06], [0.007]]
         ret.lateralTuning.pid.kf = 0.00007   # full torque for 20 deg at 80mph means 0.00007818594
         ret.safetyParam = 100
         ret.wheelbase = 2.36
-        ret.steerRatio = 18
+        ret.steerRatio = 21
         tire_stiffness_factor = 0.444
         ret.mass = 810 + STD_CARGO_KG
         ret.steerRateCost = 1.
