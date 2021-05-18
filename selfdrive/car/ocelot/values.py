@@ -50,7 +50,7 @@ FINGERPRINTS = {
 # Don't use theses fingerprints for fingerprinting, they are still needed for ECU detection
 
 
-STEER_THRESHOLD = 100
+STEER_THRESHOLD = 80
 
 DBC = {
     CAR.SMART_ROADSTER_COUPE: dbc_dict('ocelot_can', 'ford_focus_adas', chassis_dbc = 'ocelot_smart_roadster_pt'),
