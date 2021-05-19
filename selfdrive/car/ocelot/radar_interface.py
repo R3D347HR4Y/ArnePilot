@@ -22,7 +22,7 @@ class RadarInterface(RadarInterfaceBase):
     self.track_id = 0
 
     self.rcp = _create_radar_can_parser(CP.carFingerprint)
-    self.trigger_msg = 0x15F
+    self.trigger_msg = 0x12F
     self.updated_messages = set()
 
   def update(self, can_strings):
