@@ -10,7 +10,7 @@ class SteerLimitParams:
   STEER_STEP = 1                # how often we update the steer cmd
   STEER_DELTA_UP = 10           # torque increase per refresh, 0.8s to max
   STEER_DELTA_DOWN = 20         # torque decrease per refresh
-  STEER_DRIVER_ALLOWANCE = 100  # allowed driver torque before start limiting
+  STEER_DRIVER_ALLOWANCE = 80   # allowed driver torque before start limiting
   STEER_DRIVER_MULTIPLIER = 10  # weight driver torque heavily
   STEER_DRIVER_FACTOR = 1
 

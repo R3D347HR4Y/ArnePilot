@@ -37,7 +37,7 @@ class CarInterface(CarInterfaceBase):
     if candidate == CAR.SMART_ROADSTER_COUPE:
         ret.lateralTuning.init('pid')
         ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0.], [0.]]
-        ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.06], [0.008]]
+        ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.06], [0.009]]
         ret.lateralTuning.pid.kf = 0.00007   # full torque for 20 deg at 80mph means 0.00007818594
         ret.safetyParam = 100
         ret.wheelbase = 2.36
@@ -76,7 +76,7 @@ class CarInterface(CarInterfaceBase):
 
     #Gas maximum values
     ret.gasMaxBP = [0., 9., 35]
-    ret.gasMaxV = [0.2, 0.4, 0.5]
+    ret.gasMaxV = [0.2, 0.3, 0.4]
 
     #Brake maximum values
     ret.brakeMaxBP = [5., 20.]
