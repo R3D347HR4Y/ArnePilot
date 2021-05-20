@@ -31,13 +31,13 @@ class CarInterface(CarInterfaceBase):
     ret.lateralTuning.init('pid')
     ret.safetyModel = car.CarParams.SafetyModel.allOutput
 
-    ret.steerActuatorDelay = 0.10
+    ret.steerActuatorDelay = 0.12
     ret.steerLimitTimer = 0.4
 
     if candidate == CAR.SMART_ROADSTER_COUPE:
         ret.lateralTuning.init('pid')
         ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0.], [0.]]
-        ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.04], [0.009]]
+        ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.02], [0.002]]
         ret.lateralTuning.pid.kf = 0.00007   # full torque for 20 deg at 80mph means 0.00007818594
         ret.safetyParam = 100
         ret.wheelbase = 2.36
@@ -80,7 +80,7 @@ class CarInterface(CarInterfaceBase):
 
     #Brake maximum values
     ret.brakeMaxBP = [5., 20.]
-    ret.brakeMaxV = [1., 0.8]
+    ret.brakeMaxV = [1., 0.9]
     ret.stoppingBrakeRate = 0.16 # reach stopping target smoothly
 
     return ret
