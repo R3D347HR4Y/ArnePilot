@@ -31,7 +31,7 @@ class CarInterface(CarInterfaceBase):
     ret.lateralTuning.init('pid')
     ret.safetyModel = car.CarParams.SafetyModel.allOutput
 
-    ret.steerActuatorDelay = 0.09
+    ret.steerActuatorDelay = 0.15
     ret.steerLimitTimer = 0.4
 
     if candidate == CAR.SMART_ROADSTER_COUPE:

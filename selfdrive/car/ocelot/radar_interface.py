@@ -4,7 +4,7 @@ from opendbc.can.parser import CANParser
 from selfdrive.car.ocelot.values import DBC
 from selfdrive.car.interfaces import RadarInterfaceBase
 
-RADAR_MSGS = list(range(0x120, 0x13F))
+RADAR_MSGS = list(range(0x120, 0x12F))
 
 def _create_radar_can_parser(car_fingerprint):
   msg_n = len(RADAR_MSGS)
@@ -22,7 +22,7 @@ class RadarInterface(RadarInterfaceBase):
     self.track_id = 0
 
     self.rcp = _create_radar_can_parser(CP.carFingerprint)
-    self.trigger_msg = 0x13E
+    self.trigger_msg = 0x12E
     self.updated_messages = set()
 
   def update(self, can_strings):
