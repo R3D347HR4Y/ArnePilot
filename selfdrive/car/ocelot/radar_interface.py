@@ -55,7 +55,7 @@ class RadarInterface(RadarInterfaceBase):
           self.track_id += 1
         self.pts[ii].dRel = cpt['CAN_DET_RANGE']  # from front of car
         self.pts[ii].yRel = cpt['CAN_DET_RANGE'] * -cpt['CAN_DET_AZIMUTH']   # in car frame's y axis, left is positive
-        self.pts[ii].vRel = -cpt['CAN_DET_RANGE_RATE']
+        self.pts[ii].vRel = cpt['CAN_DET_RANGE_RATE']
         self.pts[ii].aRel = float('nan')
         self.pts[ii].yvRel = float('nan')
         self.pts[ii].measured = True
