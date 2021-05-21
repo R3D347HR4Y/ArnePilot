@@ -55,8 +55,9 @@ class CarInterface(CarInterfaceBase):
                                                                          tire_stiffness_factor=tire_stiffness_factor)
 
     ret.enableGasInterceptor = True
-    ret.enableCruise = True
-    ret.enableDsu = True
+    ret.enableCruise = True         #not found in toyota interface
+    ret.enableDsu = False            #maybe this needs disabed for long control
+    ret.stoppingControl = True      #should these be enabled for long control
     ret.enableCamera = True
     ret.openpilotLongitudinalControl = True
     cloudlog.warning("ECU Gas Interceptor: %r", ret.enableGasInterceptor)
@@ -82,6 +83,8 @@ class CarInterface(CarInterfaceBase):
     ret.brakeMaxBP = [5., 20.]
     ret.brakeMaxV = [1., 0.9]
     ret.stoppingBrakeRate = 0.16 # reach stopping target smoothly
+
+    
 
     return ret
 
