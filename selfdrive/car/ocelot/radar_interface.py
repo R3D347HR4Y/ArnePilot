@@ -3,6 +3,7 @@ from cereal import car
 from opendbc.can.parser import CANParser
 from selfdrive.car.ocelot.values import DBC
 from selfdrive.car.interfaces import RadarInterfaceBase
+from numpy_fast import sin
 
 RADAR_MSGS = list(range(0x120, 0x12F))
 
@@ -54,7 +55,8 @@ class RadarInterface(RadarInterfaceBase):
           self.pts[ii].trackId = self.track_id
           self.track_id += 1
         self.pts[ii].dRel = cpt['CAN_DET_RANGE']  # from front of car
-        self.pts[ii].yRel = cpt['CAN_DET_RANGE'] * -cpt['CAN_DET_AZIMUTH']   # in car frame's y axis, left is positive
+        #self.pts[ii].yRel = cpt['CAN_DET_RANGE'] * -cpt['CAN_DET_AZIMUTH']   # in car frame's y axis, left is positive
+        self.pts[ii].yRel = sin(-cpt['CAN_DET_AZIMUTH'])*cpt['CAN_DET_RANGE']
         self.pts[ii].vRel = cpt['CAN_DET_RANGE_RATE']
         self.pts[ii].aRel = float('nan')
         self.pts[ii].yvRel = float('nan')
