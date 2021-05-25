@@ -3,7 +3,7 @@ from cereal import car
 from opendbc.can.parser import CANParser
 from selfdrive.car.ocelot.values import DBC
 from selfdrive.car.interfaces import RadarInterfaceBase
-from numpy_fast import sin
+from common.numpy_fast import sin
 
 RADAR_MSGS = list(range(0x120, 0x12F))
 
