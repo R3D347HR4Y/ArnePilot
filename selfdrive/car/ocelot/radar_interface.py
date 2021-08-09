@@ -49,8 +49,8 @@ class RadarInterface(RadarInterfaceBase):
     for ii in sorted(self.updated_messages):
       cpt = self.rcp.vl[ii]
 
-      # radar point only valid if valid signal asserted
-      if cpt['CAN_DET_VALID_LEVEL'] > 0:
+      # radar point only valid if valid signal asserted and rcs matches a carFingerprint
+      if ((cpt['CAN_DET_VALID_LEVEL'] > 0) and (cpt['CAN_DET_AMPLITUDE'] > 10) and (cpt['CAN_DET_AMPLITUDE'] < 30)):
         if ii not in self.pts:
           self.pts[ii] = car.RadarData.RadarPoint.new_message()
           self.pts[ii].trackId = self.track_id
