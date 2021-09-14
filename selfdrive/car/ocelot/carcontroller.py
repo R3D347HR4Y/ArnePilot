@@ -1,7 +1,7 @@
 from cereal import car
 from common.numpy_fast import clip
-from selfdrive.car import apply_toyota_steer_torque_limits, make_can_msg
-from selfdrive.car.ocelot.ocelotcan import create_steer_command, create_gas_command, create_ibst_cmd
+from selfdrive.car import apply_toyota_steer_torque_limits, create_gas_command, make_can_msg
+from selfdrive.car.ocelot.ocelotcan import create_steer_command, create_ibst_cmd
 from selfdrive.car.ocelot.values import CAR, SteerLimitParams
 from opendbc.can.packer import CANPacker
 
@@ -51,6 +51,7 @@ class CarController():
     # gas and brake
 
     apply_gas = clip(actuators.gas, 0., 1.)
+    apply_brake = clip(actuators.brake, 0., 1.)
 
     if CS.CP.enableGasInterceptor:
       # send only negative accel if interceptor is detected. otherwise, send the regular value
@@ -75,6 +76,8 @@ class CarController():
     if not enabled: #or (frame - self.last_fault_frame < 200):
       apply_steer = 0
       apply_steer_req = 0
+      apply_gas = 0
+      apply_brake = 0
     else:
       apply_steer_req = 1
 
@@ -97,12 +100,18 @@ class CarController():
     # on consecutive messages
     # can_sends.append(create_steer_command(self.packer, apply_steer, apply_steer_req, frame))
 
+    # gas
     if (frame % 2 == 0):
       # send exactly zero if apply_gas is zero. Interceptor will send the max between read value and apply_gas.
       # This prevents unexpected pedal range rescaling
       can_sends.append(create_gas_command(self.packer, apply_gas, frame//2))
-    
-    can_sends.append(create_ibst_cmd(self.packer, enabled, actuators.brake, frame//2))
+
+    # steer
+    if (frame % 5 == 0):
+      can_sends.append(create_steer_command(self.packer, enabled, actuators.steer))
+
+    # brakes
+    can_sends.append(create_ibst_cmd(self.packer, enabled, apply_brake, frame))
 
     # ui mesg is at 100Hz but we send asap if:
     # - there is something to display
@@ -125,4 +134,5 @@ class CarController():
     #   if frame % fr_step == 0 and ecu in self.fake_ecus and CS.CP.carFingerprint in cars:
     #     can_sends.append(make_can_msg(addr, vl, bus))
 
+    print(can_sends)
     return can_sends
