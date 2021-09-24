@@ -6,9 +6,9 @@ Ecu = car.CarParams.Ecu
 
 # Steer torque limits
 class SteerLimitParams:
-  STEER_MAX = 1500
-  STEER_DELTA_UP = 10       # 1.5s time to peak torque
-  STEER_DELTA_DOWN = 25     # always lower than 45 otherwise the Rav4 faults (Prius seems ok with 50)
+  STEER_MAX = 800
+  STEER_DELTA_UP = 2       # 1.5s time to peak torque
+  STEER_DELTA_DOWN = 2     # always lower than 45 otherwise the Rav4 faults (Prius seems ok with 50)
   STEER_ERROR_MAX = 350     # max delta between torque cmd and torque motor
 
 class CAR:
@@ -33,5 +33,5 @@ FINGERPRINTS = {
 STEER_THRESHOLD = 100
 
 DBC = {
-    CAR.SMART_ROADSTER_COUPE: dbc_dict('ocelot_can', 'ford_focus_adas', 'ocelot_smart_roadster_pt'),
+    CAR.SMART_ROADSTER_COUPE: dbc_dict('ocelot_can', 'ford_focus_adas', 'ford_transit_connect_2015'),
 }

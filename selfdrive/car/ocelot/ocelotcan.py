@@ -23,7 +23,7 @@ def crc8_pedal(data):
   return crc
 
 
-def create_gas_command(packer, gas_amount, idx):
+def create_gas_command_ocelot(packer, gas_amount, idx):
   # Common gas pedal msg generator
   enable = gas_amount > 0.001
 
@@ -36,34 +36,34 @@ def create_gas_command(packer, gas_amount, idx):
     values["GAS_COMMAND"] = gas_amount * 255.
     values["GAS_COMMAND2"] = gas_amount * 255.
 
-  dat = packer.make_can_msg("GAS_COMMAND", 0, values)[2]
+  dat = packer.make_can_msg("GAS_COMMAND", 2, values)[2]
 
   checksum = crc8_pedal(dat[:-1])
   values["CHECKSUM_PEDAL"] = checksum
 
-  return packer.make_can_msg("GAS_COMMAND", 0, values)
+  return packer.make_can_msg("GAS_COMMAND", 2, values)
 
 def create_steer_command(packer, enabled, steer):
   values = {
     "STEER_TORQUE_CMD": (steer * 8192) if enabled else 0.
   }
-  return packer.make_can_msg("STEER_COMMAND", 0, values)
+  return packer.make_can_msg("STEER_COMMAND", 2, values)
 
-def create_gas_command(packer, gas_amount, idx):
-  # Common gas pedal msg generator
-  enable = gas_amount > 0.001
-
-  values = {
-    "ENABLE": enable,
-    "COUNTER_PEDAL": idx & 0xF,
-
-  }
-
-  if enable:
-    values["GAS_COMMAND"] = gas_amount * 255.
-    values["GAS_COMMAND2"] = gas_amount * 255.
-
-  return packer.make_can_msg("GAS_COMMAND", 0, values)
+#def create_gas_command(packer, gas_amount, idx):
+#  # Common gas pedal msg generator
+#  enable = gas_amount > 0.001
+#
+#  values = {
+#    "ENABLE": enable,
+#    "COUNTER_PEDAL": idx & 0xF,
+#
+#  }
+#
+#  if enable:
+#    values["GAS_COMMAND"] = gas_amount * 255.
+#    values["GAS_COMMAND2"] = gas_amount * 255.
+#
+#  return packer.make_can_msg("GAS_COMMAND", 2, values)
 
 def create_ibst_cmd(packer, enabled, brake, raw_cnt):
   values = {
@@ -73,4 +73,4 @@ def create_ibst_cmd(packer, enabled, brake, raw_cnt):
     "COUNTER" : raw_cnt,
   }
  
-  return packer.make_can_msg("BRAKE_COMMAND", 0, values)
+  return packer.make_can_msg("BRAKE_COMMAND", 2, values)

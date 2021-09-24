@@ -12,10 +12,11 @@ class CarState(CarStateBase):
     super().__init__(CP)
     print(DBC[CP.carFingerprint]['chassis'])
     can_define = CANDefine(DBC[CP.carFingerprint]['chassis'])
-    self.shifter_values = can_define.dv["GEARBOX"]['GEARPOSITION']
+    self.shifter_values = can_define.dv["GEAR_PACKET"]['GEAR']
     self.setSpeed = 0
     self.enabled = False
     self.oldEnabled = False
+    self.steer_angle = 0
 
   def update(self, cp, cp_body):
     ret = car.CarState.new_message()
@@ -32,7 +33,7 @@ class CarState(CarStateBase):
         ret.wheelSpeeds.rl = 0 #cp_body.vl["SMARTROADSTERWHEELSPEEDS"]['WHEELSPEED_RL'] * CV.MPH_TO_MS
         ret.wheelSpeeds.rr = 0 #cp_body.vl["SMARTROADSTERWHEELSPEEDS"]['WHEELSPEED_RR'] * CV.MPH_TO_MS
         ret.brakeLights = False #cp_body.vl["ABS"]['BRAKEPEDAL']
-        can_gear = 0 #int(cp_body.vl["GEARBOX"]['GEARPOSITION'])
+        can_gear = int(cp_body.vl["GEAR_PACKET"]['GEAR'])
         ret.gearShifter = self.parse_gear_shifter(self.shifter_values.get(can_gear, None))
 
     #Ibooster data
@@ -51,7 +52,8 @@ class CarState(CarStateBase):
     ret.standstill = ret.vEgoRaw < 0.001
 
     #Toyota SAS
-    ret.steeringAngle = 0 #cp.vl["TOYOTA_STEERING_ANGLE_SENSOR1"]['TOYOTA_STEER_ANGLE'] + cp.vl["TOYOTA_STEERING_ANGLE_SENSOR1"]['TOYOTA_STEER_FRACTION']
+    ret.steeringAngle = cp_body.vl["STEER_ANGLE_SENSOR"]['STEER_ANGLE']
+    self.steer_angle = ret.steeringAngle
     ret.steeringRate = 0 #cp.vl["TOYOTA_STEERING_ANGLE_SENSOR1"]['TOYOTA_STEER_RATE']
 
 
@@ -68,24 +70,11 @@ class CarState(CarStateBase):
     #Logic for OP to manage whether it's enabled or not as controls board only sends button inputs
     self.oldEnabled = self.enabled
 
-    if cp.vl["HIM_CTRLS"]['SET_BTN']:
-        self.enabled = True
-
-    if cp.vl["HIM_CTRLS"]['CANCEL_BTN']:
-        self.enabled = False
-
     self.setSpeed = ret.cruiseState.speed
     #if enabled from off (rising edge) set the speed to the current speed rounded to 5mph
     if self.enabled and not(self.oldEnabled):
         ret.cruiseState.speed = (self.myround((ret.vEgo * CV.MS_TO_MPH), 5)) * CV.MPH_TO_MS
-
-    #increase or decrease speed in 5mph increments
-    if cp.vl["HIM_CTRLS"]['SPEEDUP_BTN']:
-        ret.cruiseState.speed = self.setSpeed + 5*CV.MPH_TO_MS
-
-    if cp.vl["HIM_CTRLS"]['SPEEDDN_BTN']:
-        ret.cruiseState.speed = self.setSpeed - 5*CV.MPH_TO_MS
-
+ 
     ret.cruiseState.enabled = self.enabled
 
 
@@ -98,17 +87,7 @@ class CarState(CarStateBase):
 
     signals = [
       # sig_name, sig_address, default
-      # ("TOYOTA_STEER_ANGLE", "TOYOTA_STEERING_ANGLE_SENSOR1", 0),
-      # ("IBOOSTER_BRAKE_APPLIED", "BRAKE_STATUS", 0),
-      # ("TOYOTA_STEER_FRACTION", "TOYOTA_STEERING_ANGLE_SENSOR1", 0),
-      # ("TOYOTA_STEER_RATE", "TOYOTA_STEERING_ANGLE_SENSOR1", 0),
-      ("SET_BTN", "HIM_CTRLS", 0),
-      ("CANCEL_BTN", "HIM_CTRLS", 0),
-      ("SPEEDUP_BTN", "HIM_CTRLS", 0),
-      ("SPEEDDN_BTN", "HIM_CTRLS", 0),
-      # ("STEER_TORQUE_DRIVER", "STEERING_STATUS", 0),
-      # ("STEER_TORQUE_EPS", "STEERING_STATUS", 0),
-      ("STEERING_OK", "STEERING_STATUS", 0),
+      #("STEERING_OK", "STEERING_STATUS", 0),
     ]
 
     checks = [
@@ -117,36 +96,20 @@ class CarState(CarStateBase):
       ("BRAKE_STATUS", 80),
     ]
 
-    # add gas interceptor reading if we are using it
-    # if CP.enableGasInterceptor:
-    #   signals.append(("PED_GAS", "GAS_SENSOR", 0))
-    #   signals.append(("PED_GAS2", "GAS_SENSOR", 0))
-    #   checks.append(("GAS_SENSOR", 50))
 
 
-    return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 0)
+    return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 2)
 
   @staticmethod
   def get_body_can_parser(CP):
 
     signals = [
+      ("STEER_ANGLE", "STEER_ANGLE_SENSOR", 0),
+      ("GEAR", "GEAR_PACKET", 0),
     ]
 
     # use steering message to check if panda is connected to frc
     checks = [
     ]
 
-    # if CP.carFingerprint == CAR.SMART_ROADSTER_COUPE:
-    #     signals.append(("RIGHT_DOOR", "BODYCONTROL",0))
-    #     signals.append(("LEFT_DOOR", "BODYCONTROL",0))
-    #     signals.append(("LEFT_SIGNAL", "BODYCONTROL",0))
-    #     signals.append(("RIGHT_SIGNAL", "BODYCONTROL",0))
-    #     signals.append(("ESP_STATUS", "ABS",0))
-    #     signals.append(("WHEELSPEED_FL", "SMARTROADSTERWHEELSPEEDS",0))
-    #     signals.append(("WHEELSPEED_FR", "SMARTROADSTERWHEELSPEEDS",0))
-    #     signals.append(("WHEELSPEED_RL", "SMARTROADSTERWHEELSPEEDS",0))
-    #     signals.append(("WHEELSPEED_RR", "SMARTROADSTERWHEELSPEEDS",0))
-    #     signals.append(("BRAKEPEDAL", "ABS",0))
-    #     signals.append(("GEARPOSITION","GEARBOX", 0))
-
-    return CANParser(DBC[CP.carFingerprint]['chassis'], signals, checks, 1)
+    return CANParser(DBC[CP.carFingerprint]['chassis'], signals, checks, 0)
