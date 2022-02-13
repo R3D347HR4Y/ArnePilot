@@ -1,4 +1,14 @@
 ![kumar's testing_closet](https://github.com/rav4kumar/Openpilot/workflows/kumar's%20testing_closet/badge.svg?branch=DP08)
+DISCLAIMER:
+THIS IS A WORK IN PROGRESS TO USE ArnePilot / OpenPilot ON NON ACC, NON LKAS, NON EPS, NON BRAKE BY WIRE AND EVEN NON CAN CARS
+THIS PROJECT IS NOT SAFE FOR ANY TYPE OF ROAD, CAR OR DRIVER
+IT MAY AND PROBABLY WILL KILL YOU (No 100% chance of death BUT A DECENT PERCENTAGE NONTHELESS)
+IT IS NOT IN ANY WAY ENDORSED, SPONSORED, ENCOURAGED, ACKNOWLEDGED OR SUPPORTED BY COMMA AI, GEOHOT, ARNE, OPENPILOT, THE POPE, MY CAT OR ANY 3 LETTER AGENCY.
+IF YOU GET INTO AN ACCIDENT, DON'T BLAME ME, YOU CAN ONLY BLAME YOURSELF FOR BEING A STUPID SUICIDAL IDIOT WHO CAN'T EVEN READ OR DRIVE PROPERLY LIKE SERIOUSLY WHERE DID YOU GET YOUR LICENSE? I WANT YOU TO NEVER EVER GET YOUR STUPID ASS IN A CAR AGAIN!
+
+I think that's enough for disclaimers..
+
+But please don't use this if you don't know precisely what you are doing and even then, never on any public road!
 
 This README describes the custom features build by me (Arne Schwarck) on top of [ArnePilot](http://github.com/commaai/ArnePilot) of [comma.ai](http://comma.ai). This fork is optimized for the Toyota RAV4 Hybrid 2016 and Prius TSS2 and for driving in Germany but also works with other cars and in other countries. If you would like to support the developement on this project feel free to https://www.patreon.com/arneschwarck
 
